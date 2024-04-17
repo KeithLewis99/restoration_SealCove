@@ -1,0 +1,21 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+
+*.pdf
+*.png
+*.csv
+*.jpg
+*.xlsx
+*.html
+
+scratch*.R
+volcano.R
+archive/
+CS_Estimates/
+output/
+pics/
+R Files/
+Raw data/

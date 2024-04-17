@@ -1,0 +1,177 @@
+---
+title: "ReadMe"
+author: "Keith Lewis"
+date: "`r Sys.Date()`"
+output: html_document
+---
+<style type="text/css">
+    div.datatables { height: auto !important;}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+library(xtable)
+library(magrittr)
+library(DT)
+tab1 <- read.csv("Raw data/glmm_comparison.csv")
+```
+
+# Explanation
+
+- Kristen Loughlin wrote all the files in these folders with the exception of the "amec.efishingX.r" files and which are functions to estimate biomass and density based on depletion and the files in folder "R files" which are from Dave Cote.  The estimates from "amec.efishingX.r" are then scaled by area within the function so no need for post-processing.  
+- I added glmm_data.R, glmm_biomass_models.R, glmm_density_models.R,  glmm_anova.R, glmm_fun.R, and teh scratch_pad_*.R files
+
+
+## Biomass and Density
+- Kristen took the raw data and ran these by year through the amec function to get scaled biomass and density.  I have a file called 'scratch_pad.R' where I run the function (after running the function first) for a given data file.  All of these data files are in the file "kristin" and are named "sealcoveYEARBYxxxx", e.g., seacove1988bysite.csv.  
+
+- I then put the results from scratch_pad.R in folder "output" after renaming them.  Kristin is pretty sure that she did something similar but collated them into files that are in folder "CS_Estimates" and in the files "output_cs_eachssppbysite.xlsx and output_cs_salmonids_bysite.xlsx.  The csv files in this folder are derived from these files (check this) and these files are generally used in all the R files in the main folder. E.g. "edited_cs_estimates_by_site" is an r object that was generated from "edited_cs_estimates_by_site.csv" (a coallated file).
+
+- I ran "edited_cs_estimates_by_site.csv" through "amec.efishingcs.r" and got the exact same values as Kristen for 2015 and 2016 although it appears that she used the "stand.trad.species.biomass.contributions
+" formulation (see file "edited_cs_estimates_by_site.csv" in folder "CS_Estimates" and file "e.fishing.summary.data2016bysite.csv" in folder output - Brook Trout (BT) only.  Need to find out what the distinction is among the formulations.  
+   - We found that the amec functions scale biomass by area so no need to do this (speculation - I think that AMEC functions calculate density, i.e., the (number of fish)/area and then biomass is density*avg_weight).
+   - We found that Kristin's figures, are the mean of the scaled biomass for sites - the question is, is this the right way to summarize things.  Answer: no I think.  Better to summarize by year over teh BACI.
+
+
+## Figures
+- The area estimates are from \Raw data\SealCoveHabitat2016.xlsx and SealCove River Survey 2015.xlsx (same folder).  SealCoveHabitat.2016 also has wetted depth, bankfull width, length, and depth. SealCove River Survey 2015.xlsx has averagewidth, area, Meanpool depth for each pool/riffle and much of what is in Table 1 for 2015/2016.  
+
+- Kristin also sent me two files: "Mean_Bio_SC.csv" and "Mean_Den_SC.csv" which are derived files generated in "mean_stderrors_andplots.R" from file "edited_cs_estimates_by_site.csv".  These produce Figure 4 and 6 for BT and BTYOY (note that the data are right but these aren't exactly the figures in the ms - these have colour and 4 pannels)  
+    - I have modified these to show the pools v riffes and so that analyses in text can be compared to a graph
+
+- The output of the amec functions with the "by type" data is the total biomass in the various treatments, i.e., compensation, downstream control, upstream control
+
+- See notes on Fig 8.  This plot is produced in "Pool_estimates_and_plots.R" with object "BTPoolBio_SC"
+
+- Table 2 is identical to Mean_Bio_SC.csv and Mean_Den_SC.csv: I checked and all of these values correspond - I think its written in the notes the files and data sets.
+
+## Analyses
+- Models were all done in GLM_Gamma_SealCove_DCJan2017.R and in gamma_glms_all_species.R.  These were split out by pools and not pools (i.e., riffles) because there are no pools in the control treatment and therefore, any interaction term will yield a NA. For BT, BTYOY, ASYOY, these results correspond perfectly or very close.  The exception seems to be BT density.  However, for AS, there are zeros and gamma isn't appropriate.  
+- Now, all are in glmm_data.R, glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R (see below).
+
+# To do
+- Analyses for Atlantic salmon
+- Fig 5 & 7 where was this done - need the file
+
+# Speculations
+- Is Kristin's way right, i.e., take an average of all the pools/riffles?   Yes, I think so.  See justification in Cote code (Note - put where this is - can't find it now; also, i've re-thought this - see below options).  
+    - Kristin put the values in original values from the AMEC code in "output_cs_eachsppbysite.xlsx".   The mean and variance in Mean_Bio_Sc are simply the mean and variance of the year, species, and type (destroyed v control) but there is also sample size. 
+
+Options:  
+    -  Proceed with current analysis (e.g., mean of Year, pool, time, trt - BT_estimates_by_site).  Simple but does not take variance into account.  Probably the best for teh graphs and means I don't have to change anything.  
+    -  As above but use BT_estimates_by_site but weight by variance.  Don't really like this because this is not really the variance but simply the variance of several means with the variance unaccounted for.   
+    - Use each site but without variance.  This is also simple to implement.  
+    - Use each site but weight with variance.  This is the most robust approach but variances are very small - not sure if its worth it. The variances here could be derived from the CIs which are based on lm.  
+    Solutions: OK, I talked to Fifield and using option #3 (use each site without variance) we did a Zuur type exercies buidling on what I had done.  Basically glm -> gls -> lme -> glmm.  glmmTMB seems to take care of the homogeneity of variance and normality issues that occur in glm, gls, and lme.
+    
+Other issues (Dave Cote):    
+    - Gamma is fine for BT, BTYOY, and ASYOY but not for AS.  They have used Poisson which is not really quite right, i.e., a discrete distribution for non-discrete data. 
+    Talked this over with Paul Regular and Dave Fifield - could do a hurdle model.  The reason for a hurdle (delta) model is that Keith Clarke believes that these are true zeros.  
+    - Independence issues - see Zuur and Dave.  
+        - Dave showed me how to look at Temporal Independence and Spatial independence using package DHARMa (https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma).  We did Temproal by year and there are no issues.  Spatial will require lat/long converted to UTM.  However, i'm not sure how the "Stations" in BT_estimates_by_site correspond to those on the map (see below).  See glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R.  
+Data issue:  note that coordinatesA has station 45 which only exists in 1993 and seems to be a combination of 4 and 5. Up until now, I have been treating it as 4.  I think its best to delete it as we really don't know what it is and it seems to have multiple areas.  
+        
+# How I decided on the final approach
+
+There are a lot of ways to tackle this simple BACI design.  I agree with Dave Cote's general approach, i.e., that these are not OLS type models and that something more complex is required.  The key items are distribution, assumptions (homegeneity of variance, independence), whether a random effect is required, how to deal with zeros, and finally, diagnostics.  The table below summarizes the various approaches.  
+
+## Linear Model
+Basically, GLM can't handle random effects (for repeated measures) and LMM can't handle non-Gaussian distributions.  So this leaves GLMM.
+
+Note that GLMMs (in glmmTMB) have four components, the conditional model, the distribution, the zero inflation model, and the dispersion formula.  The conditional model will be either a BACI or one-way ANOVA type as appropriate for these data.  The distribution will be Gamma (but this can't handle zeros), a Gamma hurdle model, or Tweedie.  See below for discussion of zeros and the dispersion formula.  
+
+## Zuur's approach (2009) pg 
+- Fit a "beyond" optimal fixed effects model (over fit the model?)  
+- Using this model, find the optimal random component - compare using REML (see below)  
+- Find optimal fixed structure using ML  
+- present with REML
+
+I think that I really need only do 2 & 4.  I have a fixed model that I want to test and the random compoenent is know. The only thing that I need to worry about is if the diagnostics are bad.  
+Note: REML provides better esimates of the variance components and standard errors than does ML  But REML can't be used to compare models with different fixed effects.  For this, you need ML.  While very important, I don't think that this is relevant since I generally use REML to compare dispersion models and am only looking at parameter estimates.
+https://stats.stackexchange.com/questions/116770/reml-or-ml-to-compare-two-mixed-effects-models-with-differing-fixed-effects-but/116796#116796
+
+## Zeros  
+- 1. inflate the zeros slightly
+- 2. fall back on lmm with a non-gamma distribution
+- 3. zero inflated or hurdle
+- 4. tweedie
+
+Inflating the zeros is probably not awful but not great (see Zuur et al. 20009).  Using an improper distribution isn't a great idea.  On consultation with Keith Clarke, the zeros are probably real, i.e., structural and therefore, zero-inflated are not appropriate.  Hurdle models (also called delta and maybe also called zero-augmented) are appropriate.  A "manual" hurdle model was very helpful for getting me to understand how hurdle models work, i.e., what process produces the zeros.  It looks like sdmTMB can handle these but so can glmmTMB.  However, for sdmTMB, its not clear to me exactly how to do the diagnostics and these are specifically for spatial models.  
+On the principle of avoiding statistical puritanism and producing a model that is "good enough", I think a hurdle Gamma (ziGamma) or Tweedie distributed glmm in glmmTMB is the best balance of accounting for zeros and still having diagnostics at least for the BTYOY.  Not sure about AS and ASYOY.  
+
+This website advises that zi models are a mix while hurdle models have only structural zeros. Clarke suggested in an email that these are structural zeros as larger conspecifics will eat the smaller fish, ergo use a hurdle model.
+https://biol609.github.io/lectures/13_zinf.html#53_the_error_generating_process  
+
+Some thoughts on Tweedie dist: https://stats.stackexchange.com/questions/582124/when-should-one-use-a-tweedie-glm-over-a-zero-inflated-glm  
+
+
+# Model approaches and packages
+```{r, eval=T,prompt=T, comment = F}
+
+datatable(tab1, rownames = F, class = 'cell-border stripe', height = 80,  options = list(dom = 't', searching = F, pageLength = 30, autoWidth = TRUE, scrollY = F, 
+                                                                                          columnDefs = list(list(className = 'dt-center', targets = 1:5)), 
+                                                                                         initComplete = JS("
+                        function(settings, json) {
+                          $(this.api().table().header()).css({
+                          'font-size': '20px',
+                          });
+                        }
+                    "))) %>%
+  formatStyle(columns = colnames(.$x$data), `font-size` = "20px")
+```
+
+Good website on model syntax https://stats.stackexchange.com/questions/477338/reading-multilevel-model-syntax-in-intuitive-ways-in-r-lme4
+
+For curvilinear models:  
+#https://stackoverflow.com/questions/24192428/what-does-the-capital-letter-i-in-r-linear-regression-formula-mean 
+
+# Dispersion formula
+INT is for Interaction, not intercept.  dispformula ~ Int is therefore to account for differences in standard errors among the different interaction levels.  This works for non-pools because the non-pools have the full BACI design.  The dispformula changes to ~ Time for pools and ~ Lunkers for the LUNKER analysis because there were no pools as controls (either before or after).  
+
+Note: The conditional model fits the mean, the dispersion models the variance via a log-link(see help("glmmTMB")). https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb
+
+# Diagnostics
+I have spent a great deal of time looking at the diagnostics and for some tests, I can't get a model that doesn't violate at least some of the assumptions at least a bit.  Sometimes, the model won't converge if I make it too complicated.  In other cases, fixing one diagnostic makes causes other diagnostics to go bad.  I talked to Krista Baker and her suggestion was to document what was done and present the results.  If there were diagnostics that were violated, then you did your best and just need to temper the interpreations accordingly.   
+So the options are:  
+1. Diagnostics are good - proceed  
+2. Diagnostics are poor but p-value is far from alpha - proceed (light grey).  
+3. Diagnostics are poor but p-value is near alpha - present with qualifier (dark grey).  
+
+For how to intepret resids see:
+https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma 
+
+## Temporal autocorrelation
+https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma for how to intepret resids
+
+## Spatial autocorrelation
+Scaled residuals  
+https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
+To interpret the residuals, remember that a scaled residual value of 0.5 means that half of the simulated data are higher than the observed value (blue), and half of them lower (red).
+
+https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html
+
+## Moran's I
+https://gis.stackexchange.com/questions/99660/interpreting-morans-i-results  
+You interpret the hypothesis test the same way you do any others. That is, you fail to reject the null hypothesis that there is no spatial auto-correlation in the values of year2009 for this sample.
+
+https://www.nku.edu/~longa/geomed/ppa/doc/globals/Globals.htm#:~:text=The%20expected%20value%20of%20Moran's,which%20neighboring%20values%20are%20dissimilar.  
+The expected value of Moran’s I is -1/(N-1). Values of I that exceed -1/(N-1) indicate positive spatial autocorrelation, in which similar values, either high values or low values are spatially clustered. Values of I below -1/(N-1) indicate negative spatial autocorrelation, in which neighboring values are dissimilar.
+
+## 2024-03-14
+Although long suspected, it is now obvious that I was not functioning at a very high level in the fall.  So, upon returning, I think that i've solved a few problems.  
+- An ANCOVA can help resolve some of the temporal patterns.   
+- For Pools and LUNKERS, it makes no sense to look for spatial patterns as there are only 5 pools (1 before, 4 after) and there is basically a 50% chance of the pools near each other having the same residual sign.  Instead, I examined all of the biomass and density plots and there doesn't seem to be much of a problem.  It seems clear that LUNKER pools are good for adult brook trout (biomass and density) but really not much help for AS. For YOY, there seems to be an inverse relationship between adult salmonids and YOY.  Pool 3 has few adults and far and away the most YOY.   
+- After considerable effort trying to relate the values of the various Stations to the residual values, I realized that the data sets that I generate in glmm_data already have lat/longs while the actual coords.* data sets are in a different order.  Therefore, it was inappropriate to use coords.* in the testSpatialAutocorrelation function as this mixes up the order.  
+- In general, the spatial autocorrelation is not great but:  
+  - the Moran's I are not significant (likely due to low power),  
+  - the plots don't look awful,  
+  - the p-values are often not close to alpha  
+Therefore, conclude that reaonable inferences are being made and get on with it!!!!  
+- A final problem was that in the orginal projection, the eastings are stretched out and it distorted the spatial relationships among the Stations.  I fixed this by modifying the xlim.  
+
+
+# MS considerations
+- How to present - current ms falls short.
+
+
+# A note on variable types
+I ran into a little problem with year.  Initially, I converted the factor variable Year to numeric using as.numeric(as.character(Year)).  This was fine as a linear term but what I had forgotten was that in a formula, for a quadratic, you need I(Year)^2.  So, alot of the work needed to be retested.  I also put 
