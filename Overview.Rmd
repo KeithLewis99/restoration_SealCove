@@ -1,0 +1,309 @@
+---
+title: "Seal Cove"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+source("glmm_data.R")
+source("glmm_fun.R")
+
+# library ----
+library(nlme)
+library(glmmTMB)
+library(DHARMa)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+```
+
+# Background
+### or why this has taken so long  {data-height=300}
+
+1. Basically, I had to learn a lot of new statistics and the associated diagnostics which are time consuming to learn and perform.  When the diagnostics weren't supported, I had to find solutions.    
+2. Was off for 2 months.  
+3. Had to finish off the capelin work.  
+
+### New stats  {data-height=600}
+The original analysis used glm with Poisson or gamma distributions.  There are several issues to consider:  
+
+1. This approach did not account for variance in the estimates of density/biomass but I think that this is OK because these variances are small.
+
+2. Distribution: there are several issues here.    
+  - A. Poisson is a discrete distribution and these are non-discrete data.  
+  - B. Issues of zeros.  While Gamma (and Poisson) can handle zeros, there are issues with too many zeros and what kind they are.  There are zero-inflated models which deal with all kinds of zeros and hurdle models which deal only with true zeros, i.e., there really are no fish of species X and age-class Y in the pool.  Keith Clarke believes that these are rue zeros.  
+  - C. Independence: The mean of each site by year is OK but does not allow temporal dependence to be assessed.  
+  The solution as I see it is to use GLMM with zeroinflated gamma distributions or Tweedie.  This allows for extra zeros, non-discrete values, and especially, the non-independence of sites.
+
+### Diagnostics  {data-height=100}
+Package Dharma is a bit tricky to figure out and matching these results to sites took a while.  Also, temporal resids often required different statistical models to remove the effects.  
+
+  
+BT {data-navmenu="Summary_all"}
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_density.png")
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_biomass.png")
+```
+
+
+BTYOY {data-navmenu="Summary_all"}
+=====
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_density.png")
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_biomass.png")
+```
+
+AS {data-navmenu="Summary_all"}
+=====
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_density.png")
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_biomass.png")
+```
+
+ASYOY {data-navmenu="Summary_all"}
+=====
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_density.png")
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_biomass.png")
+```
+
+
+
+
+<!-- LUNKERS -->
+
+Density {data-navmenu="Lunkers"}
+=====
+
+
+Column {data-width=350}
+-------------------------------------
+### BT
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_LU_density.png")
+```
+
+
+### BTYOY
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_LU_density.png")
+```
+
+Column {data-width=350}
+-------------------------------------
+### AS
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_LU_density.png")
+```
+
+
+### ASYOY
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_LU_density.png")
+```
+
+
+
+Biomass {data-navmenu="Lunkers"}
+=====
+
+
+Column {data-width=350}
+-------------------------------------
+### BT
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_LU_biomass.png")
+```
+
+
+### BTYOY
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_LU_biomass.png")
+```
+
+
+Column {data-width=350}
+-------------------------------------
+### AS
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_LU_biomass.png")
+```
+
+
+### ASYOY
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_LU_biomass.png")
+```
+
+
+
+Results {data-navmenu="Analysis"}
+=====
+
+
+BT - non.pools - sample analysis
+
+Column 
+-------------------------------------
+
+### BACI plot
+```{r}
+baci.plot(bt.np.biomass.baci, "b")
+```
+
+Column 
+-------------------------------------
+
+### GLMM analysis
+```{r, eval=T,prompt=T, comment = F}
+bt.glmm1 <- glmmTMB(
+  Biomass_100 ~ Time * Treatment + (1 | Year),
+  dispformula = ~ Int,
+  family = Gamma(link = log),
+  REML = TRUE,
+  data = bt.np
+)
+
+summary(bt.glmm1)
+```
+
+Diagnostics {data-navmenu="Analysis"}
+=====
+{.tabset}
+-------------------------------------
+
+### normality and homogeneity
+```{r, eval=T,prompt=T, comment = F}
+bt.glmm1_simres <- simulateResiduals(bt.glmm1)
+plot(bt.glmm1_simres)
+```
+
+
+### temporal Autocorrelation
+
+<div style='display:flex; flex-direction:row; justify-content:space-evenly; align-items:center;'>
+
+<div>
+```{r, eval=T,prompt=T, fig.show = 'hide', comment = F}
+bt.glmm1_simres_recalc <- recalculateResiduals(bt.glmm1_simres, group = bt.np$Year)
+# plot(bt.glmm1_simres_recalc) Dave said that this is not required
+testTemporalAutocorrelation(bt.glmm1_simres_recalc, time = unique(bt.np$Year))
+```
+
+</div>
+
+<div>
+```{r, eval=T,prompt=T, results = 'hide', comment = F}
+# plot(bt.glmm1_simres_recalc) Dave said that this is not required
+testTemporalAutocorrelation(bt.glmm1_simres_recalc, time = unique(bt.np$Year))
+```
+
+</div>
+
+</div>
+
+
+### spatial Autocorrelation I
+
+<div style='display:flex; flex-direction:row; justify-content:space-evenly; align-items:center;'>
+
+<div>
+```{r, eval=T,prompt=T, fig.show = 'hide', comment = F}
+bt.glmm1_simres_recalcSpace <- recalculateResiduals(bt.glmm1_simres, group = as.factor(bt.np$Station_new))
+testSpatialAutocorrelation(bt.glmm1_simres_recalcSpace, x = unique(bt.np$X), y = unique(bt.np$Y)) 
+```
+
+</div>
+
+<div>
+  
+```{r, eval=T,prompt=T, results = 'hide', comment = F}
+testSpatialAutocorrelation(bt.glmm1_simres_recalcSpace, x = unique(bt.np$X), y = unique(bt.np$Y)) 
+```
+
+</div>
+
+</div>
+
+
+### spatial Autocorrelation II
+
+```{r, eval=T,prompt=T, comment = F}
+bt.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], bt.glmm1_simres_recalcSpace, coords.np)
+
+spatialAutoCorrBase_fun(bt.np, bt.glmm1_simres_recalcSpace, 30, -25) 
+```
+
+
+### spatial Autocorrelation III
+
+```{r, eval=T,prompt=T,  comment = F}
+spatialAutoCorrGG_fun(bt.np.biomass.all, -26, 22)
+```
+
+
+
+
