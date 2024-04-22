@@ -136,7 +136,6 @@ mean_by_site(bt.np.biomass.station, "no", "b")
 baci.plot(bt.np.biomass.baci, "b")
 
 
-
 # BTYOY ----
 ## Cote approach
 # BTYOY1.glm.not.pool.full <- glm(mean~Time*Treatment, family=Gamma(link=log), data = BTYOYbio100byhabitat.not.pool)

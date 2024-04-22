@@ -1,5 +1,6 @@
 # source("glmm_biomass_models.R")
-source("glmm_density_models.R")
+# source("glmm_density_models.R")
+source("glmm_data.R")
 
 library(ggplot2)
 library(cowplot)
@@ -241,13 +242,14 @@ p4 <- ggplot(bt.lu.summ, aes(as.factor(Lunker), mean, group = Station_new, label
   geom_point(size=4, position=position_dodge(width = 0.5)) +
   geom_text() +
   theme_bw() + 
-  theme(axis.text.x  = element_text(vjust=0.4, size=10)) +
+#  theme(axis.text.x  = element_text(vjust=0.4, size=10)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group = Station_new), width=0.1, position=position_dodge(width = 0.5)) +
-  ylab("Mean Biomass Estimate (g/100 sq. m)") +
+  ylab("Biomass (g/100 sq. m)") +
   xlab("LUNKER present") +
-  
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(), 
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p4
 
 
@@ -535,7 +537,9 @@ p8 <- ggplot(btyoy.lu.summ, aes(as.factor(Lunker), mean, group = Station_new, la
   ylab("Mean Biomass Estimate (g/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p8
 ggsave("output/BTYOY_LU_biomass.png", width=10, height=8, units="in")
 
@@ -769,7 +773,10 @@ p12 <- ggplot(as.lu.summ, aes(as.factor(Lunker), mean, group = Station_new, labe
   ylab("Mean Biomass Estimate (g/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18)
+        )
 p12
 
 ggsave("output/AS_LU_biomass.png", width=10, height=8, units="in")
@@ -1009,7 +1016,10 @@ p16 <- ggplot(asyoy.lu.summ, aes(as.factor(Lunker), mean, group = Station_new, l
   ylab("Mean Biomass Estimate (g/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
+        
 p16
 ggsave("output/ASYOY_LU_biomass.png", width=10, height=8, units="in")
 
@@ -1259,7 +1269,9 @@ p23 <- ggplot(bt.lu.summ.den, aes(as.factor(Lunker), mean, group = Station_new, 
   ylab("Mean Density Estimate (#/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p23
 ggsave(paste0("output/BT_LU_density.png"), width=10, height=8, units="in")
 
@@ -1372,7 +1384,9 @@ p27 <- ggplot(btyoy.lu.summ.den, aes(as.factor(Lunker), mean, group = Station_ne
   ylab("Mean Density Estimate (#/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p27
 
 ggsave("output/BTYOY_LU_density.png", width=10, height=8, units="in")
@@ -1484,7 +1498,9 @@ p31 <- ggplot(as.lu.summ.den, aes(as.factor(Lunker), mean, group = Station_new, 
   ylab("Mean Density Estimate (#/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p31
 
 ggsave("output/AS_LU_density.png", width=10, height=8, units="in")
@@ -1596,7 +1612,9 @@ p35 <- ggplot(asyoy.lu.summ.den, aes(as.factor(Lunker), mean, group = Station_ne
   ylab("Mean Density Estimate (#/100 sq. m)") +
   xlab("LUNKER present") +
   theme(panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank())
+        panel.grid.major=element_blank(),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 p35
 
 ggsave("output/ASYOY_LU_density.png", width=10, height=8, units="in")

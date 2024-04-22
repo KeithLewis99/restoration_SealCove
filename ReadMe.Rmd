@@ -36,7 +36,7 @@ tab1 <- read.csv("Raw data/glmm_comparison.csv")
 - The area estimates are from \Raw data\SealCoveHabitat2016.xlsx and SealCove River Survey 2015.xlsx (same folder).  SealCoveHabitat.2016 also has wetted depth, bankfull width, length, and depth. SealCove River Survey 2015.xlsx has averagewidth, area, Meanpool depth for each pool/riffle and much of what is in Table 1 for 2015/2016.  
 
 - Kristin also sent me two files: "Mean_Bio_SC.csv" and "Mean_Den_SC.csv" which are derived files generated in "mean_stderrors_andplots.R" from file "edited_cs_estimates_by_site.csv".  These produce Figure 4 and 6 for BT and BTYOY (note that the data are right but these aren't exactly the figures in the ms - these have colour and 4 pannels)  
-    - I have modified these to show the pools v riffes and so that analyses in text can be compared to a graph
+    - I have modified these to show the pools v riffes and so that analyses in text can be compared to a graph (in mean_stderrors_andplots_KL.R)
 
 - The output of the amec functions with the "by type" data is the total biomass in the various treatments, i.e., compensation, downstream control, upstream control
 
@@ -46,11 +46,13 @@ tab1 <- read.csv("Raw data/glmm_comparison.csv")
 
 ## Analyses
 - Models were all done in GLM_Gamma_SealCove_DCJan2017.R and in gamma_glms_all_species.R.  These were split out by pools and not pools (i.e., riffles) because there are no pools in the control treatment and therefore, any interaction term will yield a NA. For BT, BTYOY, ASYOY, these results correspond perfectly or very close.  The exception seems to be BT density.  However, for AS, there are zeros and gamma isn't appropriate.  
-- Now, all are in glmm_data.R, glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R (see below).
+- Now, all are in glmm_data.R, glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R (see below).  
+
+## Files
+glmm_anova.R is a bunch of figures that I have somewhat redone in glmm_biomass and glmm_density
 
 # To do
-- Analyses for Atlantic salmon
-- Fig 5 & 7 where was this done - need the file
+- Fig 5 (trend plots) & 7 (large fish plots) where was this done - need the file: haven't received these.
 
 # Speculations
 - Is Kristin's way right, i.e., take an average of all the pools/riffles?   Yes, I think so.  See justification in Cote code (Note - put where this is - can't find it now; also, i've re-thought this - see below options).  
