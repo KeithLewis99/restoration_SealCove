@@ -1024,7 +1024,7 @@ p16
 ggsave("output/ASYOY_LU_biomass.png", width=10, height=8, units="in")
 
 # Lunkers - all ----
-plot_grid(p4, p12, p8, p16, nrow = 2, ncol = 2)
+#plot_grid(p4, p12, p8, p16, nrow = 2, ncol = 2)
 
 
 

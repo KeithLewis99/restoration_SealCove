@@ -1,4 +1,4 @@
-
+# Start ----
 # So, it looks like 
 edited_cs_estimates_by_site <- read.csv("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/CS_Estimates/edited_cs_estimates_by_site.csv")
 ###Mean Biomass Estimates with Standard Errors 
@@ -407,8 +407,8 @@ ggsave(paste0("output/AS_biomass.png"), width=10, height=8, units="in")
 
 
 # ASYOY
-asyoy.bio.np.summ <- fig.data(edited_cs_estimates_by_site, "No", "AS ", Biomass_100)
-asyoy.bio.pl.summ <- fig.data(edited_cs_estimates_by_site, "Yes", "AS ", Biomass_100)
+asyoy.bio.np.summ <- fig.data(edited_cs_estimates_by_site, "No", "ASYOY", Biomass_100)
+asyoy.bio.pl.summ <- fig.data(edited_cs_estimates_by_site, "Yes", "ASYOY", Biomass_100)
 p7 <- fig.np(asyoy.bio.np.summ)
 p8 <- fig.np(asyoy.bio.pl.summ)
 
@@ -469,8 +469,8 @@ ggsave(paste0("output/AS_density.png"), width=10, height=8, units="in")
 
 
 # ASYOY
-asyoy.den.np.summ <- fig.data(edited_cs_estimates_by_site, "No", "AS ", Density_100)
-asyoy.den.pl.summ <- fig.data(edited_cs_estimates_by_site, "Yes", "AS ", Density_100)
+asyoy.den.np.summ <- fig.data(edited_cs_estimates_by_site, "No", "ASYOY", Density_100)
+asyoy.den.pl.summ <- fig.data(edited_cs_estimates_by_site, "Yes", "ASYOY", Density_100)
 p15 <- fig.np(asyoy.den.np.summ)
 p16 <- fig.np(asyoy.den.pl.summ)
 

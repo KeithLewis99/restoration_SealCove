@@ -367,6 +367,24 @@ summary(btyoy.glmm4_optim)
 mean_by_site(btyoy.np.biomass.station, "no", "d")
 baci.plot(btyoy.np.density.baci, "d")
 
+# tmp <- summary(btyoy.glmm4_optim)
+# tmp$coefficients$cond
+# tmp$coefficients
+# 
+# tmp2 <- predict(btyoy.glmm4_optim)
+# 
+# test <- edited_cs_estimates_by_site |>
+#   filter(Pool == "No" & Species == "BTYOY") |>
+#   group_by(Year) |>
+#   summarise(N  = length(Density_100),
+#             mean = mean(Density_100),
+#             sd   = sd(Density_100),
+#             se   = sd / sqrt(N))
+# 
+# plot(test$Year, test$mean, pch = 4)
+# lines(test$Year, )
+
+
 
 
 # AS ----
