@@ -49,7 +49,9 @@ tab1 <- read.csv("Raw data/glmm_comparison.csv")
 - Now, all are in glmm_data.R, glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R (see below).  
 
 ## Files
-glmm_anova.R is a bunch of figures that I have somewhat redone in glmm_biomass and glmm_density
+glmm_anova.R is a bunch of figures that I have somewhat redone in glmm_biomass and glmm_density.
+
+glmm_anova.R and mean_stderror_andplots_KL.R are largely redundant.  The difference is that glmm_anova.R has figures for LUNKERS and dot plots showing variation while mean_stderror_andplots_KL.R produces the figures in functions.
 
 # To do
 - Fig 5 (trend plots) & 7 (large fish plots) where was this done - need the file: haven't received these.
