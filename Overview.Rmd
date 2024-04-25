@@ -218,7 +218,7 @@ Column
 -------------------------------------
 
 ### GLMM analysis
-```{r, eval=T,prompt=T, comment = F}
+```{r, eval=T,prompt=T, echo = F, comment = F}
 bt.glmm1 <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
   dispformula = ~ Int,
@@ -227,8 +227,22 @@ bt.glmm1 <- glmmTMB(
   data = bt.np
 )
 
+# summary(bt.glmm1)
+```
+
+<div style="height: 400px; overflow-y: scroll;">
+```{r}
 summary(bt.glmm1)
 ```
+</div>
+
+
+<!-- <div style="height: 400px; overflow-y: scroll;"> -->
+<!-- ```{r results='asis'} -->
+<!-- summary(bt.glmm1) -->
+<!-- ``` -->
+<!-- </div> -->
+
 
 Diagnostics {data-navmenu="Analysis"}
 =====
@@ -306,4 +320,103 @@ spatialAutoCorrGG_fun(bt.np.biomass.all, -26, 22)
 
 
 
+<!-- Dotplots -->
+
+Density {data-navmenu="Dotplots"}
+=====
+
+
+Column {data-width=350}
+-------------------------------------
+### BT
+```{r}
+p3 <- ggplot(data = bt.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p3 
+```
+
+
+### BTYOY
+```{r}
+p7 <- ggplot(data = btyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p7
+```
+
+Column {data-width=350}
+-------------------------------------
+### AS
+```{r}
+p11 <- ggplot(data = as.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p11
+```
+
+
+### ASYOY
+```{r}
+p15 <- ggplot(data = asyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p15
+```
+
+
+
+Biomass {data-navmenu="Dotplots"}
+=====
+
+
+Column {data-width=350}
+-------------------------------------
+### BT
+```{r}
+p22 <- ggplot(data = bt.pl, aes(x = Station_new, y = Density_100)) + 
+  geom_point()
+p22 
+```
+
+
+### BTYOY
+```{r}
+p26 <- ggplot(data = btyoy.pl, aes(x = Station_new, y = Density_100)) + 
+  geom_point()
+p26
+```
+
+
+Column {data-width=350}
+-------------------------------------
+### AS
+```{r}
+p30 <- ggplot(data = as.pl, aes(x = Station_new, y = Density_100)) + 
+  geom_point()
+p30
+```
+
+
+### ASYOY
+```{r}
+p34 <- ggplot(data = asyoy.pl, aes(x = Station_new, y = Density_100)) + 
+  geom_point()
+p34
+```
+
+
+
+# Notes
+
+On GLMM analysis, intercept = lower right; int + TRT = upper right, int + Time = lower left, int + Time + Trt + interaction = upper left
+
+Temporal autocorrelation - for how to intepret resids, see:  https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma  
+
+Spatial autocorrelation - for how to intepret resids, see: 
+Scaled residuals  
+https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html  
+To interpret the residuals, remember that a scaled residual value of 0.5 means that half of the simulated data are higher than the observed value (blue), and half of them lower (red).  
+https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html  
+
+
+Moran's I  
+https://gis.stackexchange.com/questions/99660/interpreting-morans-i-results  
+You interpret the hypothesis test the same way you do any others. That is, you fail to reject the null hypothesis that there is no spatial auto-correlation in the values of year2009 for this sample.
 
