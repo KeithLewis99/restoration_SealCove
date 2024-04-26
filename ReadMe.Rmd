@@ -51,7 +51,7 @@ tab1 <- read.csv("Raw data/glmm_comparison.csv")
 ## Files
 glmm_anova.R is a bunch of figures that I have somewhat redone in glmm_biomass and glmm_density.
 
-glmm_anova.R and mean_stderror_andplots_KL.R are largely redundant.  The difference is that glmm_anova.R has figures for LUNKERS and dot plots showing variation while mean_stderror_andplots_KL.R produces the figures in functions.
+glmm_anova.R and mean_stderror_andplots_KL.R are largely redundant.  The difference is that glmm_anova.R has figures for LUNKERS and dot plots showing variation while mean_stderror_andplots_KL.R produces the figures in functions and has baci.plots.
 
 # To do
 - Fig 5 (trend plots) & 7 (large fish plots) where was this done - need the file: haven't received these.
@@ -178,4 +178,25 @@ Therefore, conclude that reaonable inferences are being made and get on with it!
 
 
 # A note on variable types
-I ran into a little problem with year.  Initially, I converted the factor variable Year to numeric using as.numeric(as.character(Year)).  This was fine as a linear term but what I had forgotten was that in a formula, for a quadratic, you need I(Year)^2.  So, alot of the work needed to be retested.  I also put 
+I ran into a little problem with year.  Initially, I converted the factor variable Year to numeric using as.numeric(as.character(Year)).  This was fine as a linear term but what I had forgotten was that in a formula, for a quadratic, you need I(Year)^2.  So, alot of the work needed to be retested.
+
+# The story
+
+For BT, there are more fish and higher biomass in pools than riffles.  There is a general increase in the pools but this is driven to some degree by 2016 - suggests more fish.  The riffle controls are oscilate without trend upstream and downstream while density is domeshaped downstream but increasing upstream suggesting bigger fish.  
+
+BTYOY there are more fish in the riffles than the pools.  BTYOY generally decrease in biomass and density for all although downstream is dome-shaped.  Perhaps this is due to canabalism.
+
+AS may have a few more fish in the riffles but biomass is higher in the pools.  Density and biomass oscilate without trend in the pools but density increases in the treatment riffles while biomass levels off.  Both biomass and density seem to increase in teh controls.
+
+ASYOY there are more fish in the riffles than the pools. The original pools had far more ASYOY than the created pools which generally had low ASYOY.  They also had more fish than the riffles.  There is a general decreasing or domeshaped trend for the riffles.
+
+Lunkers appear to be good for BT but for AS, there is no effect.  For YOY, pool C3 is good but the rest are no.  Again, predation may be a factor.  
+
+Also, there appears to be some relationship between adult and YOY but it is strongest for BT in pools.  But this is testing hypotheses after looking at the data and therefore, a post-hoc hypothesis. But Clarke or Kristin might have thought of this before hand so bring it up.
+
+# Meeting  
+- stats overview and discussion 
+- discuss results  
+- files from Loughlin  
+- next steps -> Discussion 
+- Carpenter approach
