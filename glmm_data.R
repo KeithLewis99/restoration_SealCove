@@ -441,6 +441,14 @@ bt.pl.biomass.station <- edited_cs_estimates_by_site |>
             sd   = sd(Biomass_100),
             se   = sd / sqrt(N))
 
+bt.pl.biomass.baci <- edited_cs_estimates_by_site |>
+  filter(Pool == "Yes" & Species == "BT") |>
+  group_by(Station_new, Treatment, Time) |>
+  summarise(N  = length(Biomass_100),
+            mean = mean(Biomass_100),
+            sd   = sd(Biomass_100),
+            se   = sd / sqrt(N))
+
 bt.lu.biomass.station <- bt.lu |>
   group_by(Station_new, Lunker) |>
   summarise(N  = length(Biomass_100),
@@ -467,6 +475,14 @@ btyoy.np.biomass.baci <- edited_cs_estimates_by_site |>
 btyoy.pl.biomass.station <- edited_cs_estimates_by_site |>
   filter(Pool == "Yes" & Species == "BTYOY") |>
   group_by(Station_new, Time) |>
+  summarise(N  = length(Biomass_100),
+            mean = mean(Biomass_100),
+            sd   = sd(Biomass_100),
+            se   = sd / sqrt(N))
+
+btyoy.pl.biomass.baci <- edited_cs_estimates_by_site |>
+  filter(Pool == "Yes" & Species == "BTYOY") |>
+  group_by(Station_new, Treatment, Time) |>
   summarise(N  = length(Biomass_100),
             mean = mean(Biomass_100),
             sd   = sd(Biomass_100),
@@ -504,6 +520,14 @@ as.pl.biomass.station <- edited_cs_estimates_by_site |>
             sd   = sd(Biomass_100),
             se   = sd / sqrt(N))
 
+as.pl.biomass.baci <- edited_cs_estimates_by_site |>
+  filter(Pool == "Yes" & Species == "AS ") |>
+  group_by(Station_new, Treatment, Time) |>
+  summarise(N  = length(Biomass_100),
+            mean = mean(Biomass_100),
+            sd   = sd(Biomass_100),
+            se   = sd / sqrt(N))
+
 as.lu.biomass.station <- as.lu |>
   group_by(Station_new, Lunker) |>
   summarise(N  = length(Biomass_100),
@@ -536,6 +560,16 @@ asyoy.pl.biomass.station <- edited_cs_estimates_by_site |>
             mean = mean(Biomass_100),
             sd   = sd(Biomass_100),
             se   = sd / sqrt(N))
+
+asyoy.pl.biomass.baci <- edited_cs_estimates_by_site |>
+  filter(Pool == "Yes" & Species == "ASYOY") |>
+  group_by(Station_new, Treatment, Time) |>
+  summarise(N  = length(Biomass_100),
+            mean = mean(Biomass_100),
+            sd   = sd(Biomass_100),
+            se   = sd / sqrt(N))
+
+
 
 asyoy.lu.biomass.station <- asyoy.lu |>
   group_by(Station_new, Lunker) |>
