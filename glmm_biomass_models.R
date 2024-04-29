@@ -368,7 +368,7 @@ spatialAutoCorrGG_fun(btyoy.np.biomass.all)
 # Spatials aren't great but Moran's I is not sig.  so with
 summary(btyoy.glmm4_new1)
 mean_by_site(btyoy.np.biomass.station, "no", "b")
-baci.plot(btyoy.np.density.baci, "b")
+baci.plot(btyoy.np.biomass.baci, "b")
 
 
 # AS ----
@@ -498,7 +498,7 @@ spatialAutoCorrGG_fun(as.np.biomass.all)
 
 summary(as.glmm3)
 mean_by_site(as.np.biomass.station, "no", "b")
-baci.plot(as.np.density.baci, "b")
+baci.plot(as.np.biomass.baci, "b")
 
 
 # ASYOY ----
@@ -698,7 +698,7 @@ testTemporalAutocorrelation(btp.glmm2_simres_recalc, time = unique(bt.pl$Year))
 # can't really say much with 4 pools but dosn't appear to be clustering - proceed with btp.glmm2
 summary(btp.glmm2)
 mean_by_site(bt.pl.biomass.station, "yes", "d")
-
+baci.plot(bt.pl.biomass.baci, "b")
 
 
 ### LUNKERS ----
@@ -885,7 +885,7 @@ testTemporalAutocorrelation(btyoyp.glmm1_new_simres_recalc, time = unique(btyoy.
 
 summary(btyoyp.glmm1_new)
 mean_by_site(btyoy.pl.biomass.station, "yes", "d")
-
+baci.plot(btyoy.pl.biomass.baci, "b")
 
 ### LUNKERS ----
 
@@ -1089,7 +1089,7 @@ testTemporalAutocorrelation(asp.glmm2_new_simres_recalc, time = unique(as.pl$Yea
 # The change in the model makes some difference with temporal resids but makes other plots worse.  But this is no where near signficant so proceed with original
 summary(asp.glmm2)
 mean_by_site(as.pl.biomass.station, "yes", "d")
-
+baci.plot(as.pl.biomass.baci, "b")
 
 ### LUNKERS ----
 asl.glmm1 <- glmmTMB(
@@ -1222,7 +1222,7 @@ testTemporalAutocorrelation(asyoyp.glmm2_simres_recalc, time = unique(asyoy.pl$Y
 ### Tried using year as a covariate but it didn't help. P-value far from alpha so proceed with 
 summary(asyoyp.glmm1)
 mean_by_site(asyoy.pl.biomass.station, "yes", "d")
-
+baci.plot(asyoy.pl.biomass.baci, "b")
 
 ### LUNKERS ----
 
