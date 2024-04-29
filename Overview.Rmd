@@ -201,7 +201,7 @@ knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kr
 
 
 
-Results {data-navmenu="Analysis"}
+Results {data-navmenu="Analysis-not pool"}
 =====
 
 
@@ -245,7 +245,7 @@ summary(bt.glmm1)
 <!-- </div> -->
 
 
-Diagnostics {data-navmenu="Analysis"}
+Diagnostics {data-navmenu="Analysis-not pool"}
 =====
 
 {.tabset}
@@ -321,7 +321,7 @@ spatialAutoCorrGG_fun(bt.np.biomass.all, -26, 22)
 ```
 
 
-BTYOY {data-navmenu="Analysis"}
+BTYOY {data-navmenu="Analysis-not pool"}
 =====
 
 
@@ -358,7 +358,7 @@ summary(btyoy.glmm4_new1)
 
 
 
-AS {data-navmenu="Analysis"}
+AS {data-navmenu="Analysis-not pool"}
 =====
 
 
@@ -393,7 +393,7 @@ summary(as.glmm3)
 
 
 
-ASYOY {data-navmenu="Analysis"}
+ASYOY {data-navmenu="Analysis-not pool"}
 =====
 
 
@@ -429,51 +429,201 @@ summary(asyoy.glmm2)
 
 
 
+Results {data-navmenu="Analysis-pool"}
+=====
+
+
+BT - non.pools - sample analysis
+
+Column 
+-------------------------------------
+
+### BACI plot
+```{r}
+baci.plot(bt.pl.biomass.baci, "b")
+```
+
+Column 
+-------------------------------------
+
+### GLMM analysis
+```{r, eval=T,prompt=T, echo = F, comment = F}
+btp.glmm2 <- glmmTMB(Biomass_100~Time + (1|Year), 
+                    family = Gamma(link=log),
+                    REML = TRUE,
+                    data=bt.pl)
+
+# summary(bt.glmm1)
+```
+
+<div style="height: 400px; overflow-y: scroll;">
+```{r}
+summary(btp.glmm2)
+```
+</div>
+
+
+<!-- <div style="height: 400px; overflow-y: scroll;"> -->
+<!-- ```{r results='asis'} -->
+<!-- summary(bt.glmm1) -->
+<!-- ``` -->
+<!-- </div> -->
+
+
+
+
+Diagnostics {data-navmenu="Analysis-pool"}
+=====
+
+{.tabset}
+-------------------------------------
+
+### normality and homogeneity
+```{r, eval=T,prompt=T, comment = F}
+btp.glmm2_simres <- simulateResiduals(btp.glmm2)
+plot(btp.glmm2_simres)
+```
+
+
+### temporal Autocorrelation
+
+<div style='display:flex; flex-direction:row; justify-content:space-evenly; align-items:center;'>
+
+<div>
+```{r, eval=T,prompt=T, fig.show = 'hide', comment = F}
+btp.glmm2_simres_recalc <- recalculateResiduals(btp.glmm2_simres, group = bt.pl$Year)
+# plot(bt.glmm1_simres_recalc) Dave said that this is not required
+testTemporalAutocorrelation(btp.glmm2_simres_recalc, time = unique(bt.pl$Year))
+```
+
+</div>
+
+<div>
+```{r, eval=T,prompt=T, results = 'hide', comment = F}
+# plot(bt.glmm1_simres_recalc) Dave said that this is not required
+testTemporalAutocorrelation(btp.glmm2_simres_recalc, time = unique(bt.pl$Year))
+```
+
+</div>
+
+</div>
+
+
+
+
+BTYOY {data-navmenu="Analysis-pool"}
+=====
+
+
+Column 
+-------------------------------------
+
+### BACI plot
+```{r}
+baci.plot(btyoy.pl.biomass.baci, "b")
+```
+
+Column 
+-------------------------------------
+
+### GLMM analysis
+```{r, eval=T,prompt=T, echo = F, comment = F}
+btyoyp.glmm1_new <- glmmTMB(
+  #Biomass_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
+  Biomass_100 ~ Time + as.numeric(Year) + (1 | Year),
+  dispformula = ~ Time,
+  family = tweedie,
+  REML = TRUE,
+  data = btyoy.pl
+)
+
+# summary(bt.glmm1)
+```
+
+<div style="height: 400px; overflow-y: scroll;">
+```{r}
+summary(btyoyp.glmm1_new)
+```
+</div>
+
+
+
+AS {data-navmenu="Analysis-pool"}
+=====
+
+
+Column 
+-------------------------------------
+
+### BACI plot
+```{r}
+baci.plot(as.pl.biomass.baci, "b")
+```
+
+Column 
+-------------------------------------
+
+### GLMM analysis
+```{r, eval=T,prompt=T, echo = F, comment = F}
+asp.glmm2 <- glmmTMB(
+  Biomass_100 ~ Time + (1 | Year),
+#  dispformula = ~ Time, # produces NaN in std errors and 
+  family = tweedie,
+  REML = TRUE,
+  data = as.pl
+)
+
+# summary(bt.glmm1)
+```
+
+<div style="height: 400px; overflow-y: scroll;">
+```{r}
+summary(asp.glmm2)
+```
+</div>
+
+
+
+ASYOY {data-navmenu="Analysis-pool"}
+=====
+
+
+Column 
+-------------------------------------
+
+### BACI plot
+```{r}
+baci.plot(asyoy.pl.biomass.baci, "b")
+```
+
+Column 
+-------------------------------------
+
+### GLMM analysis
+```{r, eval=T,prompt=T, echo = F, comment = F}
+asyoyp.glmm1 <- glmmTMB(
+  Biomass_100 ~ Time + (1 | Year),
+  dispformula = ~ Time,
+  family=ziGamma(link="log"), ziformula = ~1,
+  REML = TRUE,
+  data = asyoy.pl
+)
+
+# summary(bt.glmm1)
+```
+
+<div style="height: 400px; overflow-y: scroll;">
+```{r}
+summary(asyoyp.glmm1)
+```
+</div>
+
+
+
 <!-- Dotplots -->
 
-Density {data-navmenu="Dotplots"}
+Density {data-navmenu="Dotplots-pools"}
 =====
-
-
-Column {data-width=350}
--------------------------------------
-### BT
-```{r}
-p3 <- ggplot(data = bt.pl, aes(x = Station_new, y = Biomass_100)) + 
-  geom_point()
-p3 
-```
-
-
-### BTYOY
-```{r}
-p7 <- ggplot(data = btyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
-  geom_point()
-p7
-```
-
-Column {data-width=350}
--------------------------------------
-### AS
-```{r}
-p11 <- ggplot(data = as.pl, aes(x = Station_new, y = Biomass_100)) + 
-  geom_point()
-p11
-```
-
-
-### ASYOY
-```{r}
-p15 <- ggplot(data = asyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
-  geom_point()
-p15
-```
-
-
-
-Biomass {data-navmenu="Dotplots"}
-=====
-
 
 Column {data-width=350}
 -------------------------------------
@@ -509,6 +659,45 @@ p34 <- ggplot(data = asyoy.pl, aes(x = Station_new, y = Density_100)) +
   geom_point()
 p34
 ```
+
+
+Biomass {data-navmenu="Dotplots-pools"}
+=====
+
+Column {data-width=350}
+-------------------------------------
+### BT
+```{r}
+p3 <- ggplot(data = bt.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p3 
+```
+
+
+### BTYOY
+```{r}
+p7 <- ggplot(data = btyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p7
+```
+
+Column {data-width=350}
+-------------------------------------
+### AS
+```{r}
+p11 <- ggplot(data = as.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p11
+```
+
+
+### ASYOY
+```{r}
+p15 <- ggplot(data = asyoy.pl, aes(x = Station_new, y = Biomass_100)) + 
+  geom_point()
+p15
+```
+
 
 
 
