@@ -544,7 +544,7 @@ spatialAutoCorrGG_fun(as.np.density.all)
 
 # Accept this model -as_den.glmm3_new
 summary(as_den.glmm3_new)
-mean_by_site(as.np.biomass.station, "no", "d")
+mean_by_site(as.np.density.station, "no", "d")
 baci.plot(as.np.density.baci, "d")
 
 # ASYOY ----
@@ -663,7 +663,7 @@ spatialAutoCorrGG_fun(asyoy.np.density.all)
 
 # spatial indenendence is fine - proceed with model - asyoy_den.glmm3
 summary(asyoy_den.glmm1)
-mean_by_site(asyoy.np.biomass.station, "no", "d")
+mean_by_site(asyoy.np.density.station, "no", "d")
 baci.plot(asyoy.np.density.baci, "d")
 
 
@@ -1028,7 +1028,7 @@ mean_by_site(btyoy.lu.density.station, "lunker", "d")
 ### glmm ----
 #### Gamma is OK here because there are no zeros
 
-asp_den.glmm1 <- glmmTMB(Density_100~Time + (1|Year), 
+asp_den.glmm1 <- glmmTMB(Density_100~Time + (1|Year), # adding year doesn't help resids!
                          dispformula = ~ Time,
                          family = ziGamma(link = "log"),
                          ziformula = ~1,
