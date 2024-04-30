@@ -190,7 +190,7 @@ AS may have a few more fish in the riffles but biomass is higher in the pools.  
 
 ASYOY there are more fish in the riffles than the pools. The original pools had far more ASYOY than the created pools which generally had low ASYOY.  They also had more fish than the riffles.  There is a general decreasing or domeshaped trend for the riffles.
 
-Lunkers appear to be good for BT but for AS, there is no effect.  For YOY, pool C3 is good but the rest are no.  Again, predation may be a factor.  
+Lunkers appear to be good for BT but for AS, there is no effect.  For YOY, pool C3 is good but the rest are not.  Again, predation may be a factor.  Indeed, C3 seems to be a very poor pool for BT and this may be the reason its good for YOY.  C3 is OK for AS but biomass is 50 here whereas its close to 500 for the BT and this is the worst pool for BT - other pools are > 1000 or > 2000.
 
 Also, there appears to be some relationship between adult and YOY but it is strongest for BT in pools.  But this is testing hypotheses after looking at the data and therefore, a post-hoc hypothesis. But Clarke or Kristin might have thought of this before hand so bring it up.
 
