@@ -367,7 +367,7 @@ Column
 
 ### BACI plot
 ```{r}
-baci.plot(as.np.density.baci, "b")
+baci.plot(as.np.biomass.baci, "b")
 ```
 
 Column 
@@ -456,7 +456,7 @@ btp.glmm2 <- glmmTMB(Biomass_100~Time + (1|Year),
 # summary(bt.glmm1)
 ```
 
-<div style="height: 400px; overflow-y: scroll;">
+<div style="height: 800px; overflow-y: scroll;">
 ```{r}
 summary(btp.glmm2)
 ```
