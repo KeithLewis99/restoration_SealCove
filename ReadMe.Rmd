@@ -79,7 +79,7 @@ Data issue:  note that coordinatesA has station 45 which only exists in 1993 and
 There are a lot of ways to tackle this simple BACI design.  I agree with Dave Cote's general approach, i.e., that these are not OLS type models and that something more complex is required.  The key items are distribution, assumptions (homegeneity of variance, independence), whether a random effect is required, how to deal with zeros, and finally, diagnostics.  The table below summarizes the various approaches.  
 
 ## Linear Model
-Basically, GLM can't handle random effects (for repeated measures) and LMM can't handle non-Gaussian distributions.  So this leaves GLMM.
+Basically, GLM can't handle random effects (for repeated measures - the way it was done was to take a mean which loses information, i.e., variance) and LMM can't handle non-Gaussian distributions.  So this leaves GLMM.
 
 Note that GLMMs (in glmmTMB) have four components, the conditional model, the distribution, the zero inflation model, and the dispersion formula.  The conditional model will be either a BACI or one-way ANOVA type as appropriate for these data.  The distribution will be Gamma (but this can't handle zeros), a Gamma hurdle model, or Tweedie.  See below for discussion of zeros and the dispersion formula.  
 
@@ -160,17 +160,18 @@ You interpret the hypothesis test the same way you do any others. That is, you f
 https://www.nku.edu/~longa/geomed/ppa/doc/globals/Globals.htm#:~:text=The%20expected%20value%20of%20Moran's,which%20neighboring%20values%20are%20dissimilar.  
 The expected value of Moran’s I is -1/(N-1). Values of I that exceed -1/(N-1) indicate positive spatial autocorrelation, in which similar values, either high values or low values are spatially clustered. Values of I below -1/(N-1) indicate negative spatial autocorrelation, in which neighboring values are dissimilar.
 
-## 2024-03-14
+# 2024-03-14
 Although long suspected, it is now obvious that I was not functioning at a very high level in the fall.  So, upon returning, I think that i've solved a few problems.  
 - An ANCOVA can help resolve some of the temporal patterns.   
-- For Pools and LUNKERS, it makes no sense to look for spatial patterns as there are only 5 pools (1 before, 4 after) and there is basically a 50% chance of the pools near each other having the same residual sign.  Instead, I examined all of the biomass and density plots and there doesn't seem to be much of a problem.  It seems clear that LUNKER pools are good for adult brook trout (biomass and density) but really not much help for AS. For YOY, there seems to be an inverse relationship between adult salmonids and YOY.  Pool 3 has few adults and far and away the most YOY.   
-- After considerable effort trying to relate the values of the various Stations to the residual values, I realized that the data sets that I generate in glmm_data already have lat/longs while the actual coords.* data sets are in a different order.  Therefore, it was inappropriate to use coords.* in the testSpatialAutocorrelation function as this mixes up the order.  
+- For Pools and LUNKERS, it makes no sense to look for spatial patterns as there are only 5 pools (1 before, 4 after) and there is basically a 50% chance of the pools near each other having the same residual sign.  Instead, I examined all of the biomass and density plots and there doesn't seem to be much of a problem.  It seems clear that LUNKER pools are good for adult brook trout (biomass and density) but really not much help for AS. For YOY, at first glance, there seems to be an inverse relationship between adult salmonids and YOY.  Pool 3 has few adults and far and away the most YOY, so really its a site effect and not very interesting.   
+- After considerable effort trying to relate the values of the various Stations to the residual values, I realized that the data sets that I generate in glmm_data already have lat/longs while the actual coords.* data sets are in a different order.  Therefore, it was inappropriate to use coords.* in the testSpatialAutocorrelation function as this mixes up the order. After considerable effort, I have resolved this issue. 
+
 - In general, the spatial autocorrelation is not great but:  
-  - the Moran's I are not significant (likely due to low power),  
-  - the plots don't look awful,  
-  - the p-values are often not close to alpha  
-Therefore, conclude that reaonable inferences are being made and get on with it!!!!  
-- A final problem was that in the orginal projection, the eastings are stretched out and it distorted the spatial relationships among the Stations.  I fixed this by modifying the xlim.  
+    - the Moran's I are not significant (likely due to low power),  
+    - the plots don't look awful,  
+    - the p-values are often not close to alpha  
+Therefore, conclude that reasonable inferences are being made and get on with it!!!!  
+- A final problem was that in the original projection, the eastings are stretched out and it distorted the spatial relationships among the Stations.  I fixed this by modifying the xlim.  
 
 
 # MS considerations
@@ -178,7 +179,14 @@ Therefore, conclude that reaonable inferences are being made and get on with it!
 
 
 # A note on variable types
-I ran into a little problem with year.  Initially, I converted the factor variable Year to numeric using as.numeric(as.character(Year)).  This was fine as a linear term but what I had forgotten was that in a formula, for a quadratic, you need I(Year)^2.  So, alot of the work needed to be retested.
+I ran into a little problem with Year.  Initially, I converted the factor variable Year to numeric using as.numeric(as.character(Year)).  This was fine as a linear term but what I had forgotten was that in a formula, for a quadratic, you need I(Year)^2.  So, alot of the work needed to be retested.
+
+# Fading plots  
+I like Cote's fading plots.  They get at the idea that the effect is working in the long term which is good.  
+
+However, I don't think that these are doing what Cote intended.  He's subsetting by Time == "After" and Treatment == "Impact" and re-running the analysis with YOS (year of study) and Pool as variables.  Then, he's generating predicted values, bound them to the data set and subsetted by "pool" or "riffle" again before plotting.:  
+
+I don't agree with this approach. Aside from the original issues with using glm (see above), its creating a new model, conflating the pools/riffles, and using these new parameter estimates to say something about the effect over time.  I think you should use the values from the original model and use the coefficients for the fixed and random effects for just the After:Impact to get at the fading effect. See scratch_pad_glm for all the rationale and justification for why this works.  
 
 # The story
 
@@ -194,9 +202,10 @@ Lunkers appear to be good for BT but for AS, there is no effect.  For YOY, pool 
 
 Also, there appears to be some relationship between adult and YOY but it is strongest for BT in pools.  But this is testing hypotheses after looking at the data and therefore, a post-hoc hypothesis. But Clarke or Kristin might have thought of this before hand so bring it up.
 
-# Meeting  
+Fading plots suggest that there is little change over time, i.e., the restoration has worked in the long term.
+
+# Meeting for early May with Clarke and Kristin
 - stats overview and discussion 
-- discuss results  
-- files from Loughlin  
-- next steps -> Discussion 
 - Carpenter approach
+- discuss results  
+- next steps -> Discussion 
