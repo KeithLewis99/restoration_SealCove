@@ -1293,5 +1293,119 @@ summary(asyoyl.glmm2)
 mean_by_site(asyoy.lu.biomass.station, "lunker", "d")
 
 
+# fading plots ----
+## riffles ----
+### see scratch_pad_glm.R for all the rationale and justification for why this works
+
+# back transformed
+bt.np_fit <- fitted(bt.glmm1, se.fit=T)
+
+# log scale
+bt.np_pred <- as.data.frame(predict(bt.glmm1, se.fit = T))
+
+# random effect
+bt.np_rdm <- ranef(bt.glmm1)
+
+
+# combine fitted and predicted values with the dataframe
+df_bt.np <- as.data.frame(cbind(bt.np, bt.np_fit, bt.np_pred))
+df_bt.np[, c(1:2, 6, 12:13, 17, 23:25)]
+df1_bt.np <- df_bt.np[, c(1:2, 6, 12:13, 17, 23:25)] |>
+  filter(Time == "After" & Treatment == "Impact") 
+df1_bt.np
+
+# filter the data frame for mean value by year
+df2_bt.np <- df_bt.np |>
+  filter(Time == "After" & Treatment == "Impact") |>
+  group_by(Year) |>
+  summarise(mean = mean(Biomass_100), # this is the mean by year
+            fit = mean(fit), # this is teh fixed effect for that year
+            se = mean(se.fit) # this is teh SE for that year
+  )
+# see scratch_pad.glm for notes about calculating standard error
+
+# plot with predicted line, and confidence intervals and predicted value for the Before:impact period
+png("output/fade_np_BTbiomass.png", pointsize=10, width=2800, height=2000, res=600)
+
+plot(as.numeric(as.character(df2_bt.np$Year)), df2_bt.np$mean, 
+     pch = 16, ylim = c(200, 800), 
+     xlab = "Year", ylab = "Mean Biomass Estimate (g/100 sq. m)")
+
+lines(as.numeric(as.character(df2_bt.np$Year)), 
+      exp(df2_bt.np$fit), col="black")
+# note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
+lines(as.numeric(as.character(df2_bt.np$Year)), exp(df2_bt.np$fit+1.96*df2_bt.np$se), col="black", lty=2)
+lines(as.numeric(as.character(df2_bt.np$Year)), exp(df2_bt.np$fit-1.96*df2_bt.np$se), col="black", lty=2)
+
+yr_1988 <- df_bt.np$bt.np_fit[1]
+yr_1989 <- df_bt.np$bt.np_fit[8]
+abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+legend(1994,800, text.font=1, 
+       c("Mean Biomass - 1991-2016", "Model Fit - Pools", "95% C.I.","Mean Biomass - 1988 & 89"),
+       lty=c(0,1,2,1), pch=c(1,NA,NA,NA), cex = 0.75, # gives the legend appropriate symbols (lines)
+       col=c("black", "black","black","blue" )) # gives the legend lines the correct color and width
+# puts text in the legend 
+
+dev.off()
+
+
+
+## pools ----
+### the below figure has an almost straight line for the mean and CIs which is a bit wonky.  Why?  Basically, the Year random effect has variance that is almost zero.  The below FAQ page documents what "singular effects" are and why they occur and what to do about it.  
+#### https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+#### From the above page: "If a variance component is zero, dropping it from the model will have no effect on any of the estimated quantities (although it will affect the AIC, as the variance parameter is counted even though it has no effect). Pasch, Bolker, and Phelps (2013) gives one example where random effects were dropped because the variance components were consistently estimated as zero. Conversely, if one chooses for philosophical grounds to retain these parameters, it won’t change any of the answers."
+##### I ran the same model without the random effect and the conditional model was exactly the same.  Therefore, keeping the random effects in on philosophical grounds.  
+
+# back transformed
+bt.pl_fit <- fitted(btp.glmm2)
+
+# log scale
+bt.pl_pred <- as.data.frame(predict(btp.glmm2, se.fit = T))
+
+# random effect
+bt.pl_rdm <- ranef(btp.glmm2)
+vcov(btp.glmm2)
+VarCorr(btp.glmm2)
+VarCorr(btp.glmm2)[[c("cond", "Year")]]
+
+summary(glmmTMB(Biomass_100~Time, 
+        family = Gamma(link=log),
+        REML = TRUE,
+        data=bt.pl)
+)
+
+
+# combine fitted and predicted values with the dataframe
+df_bt.pl <- as.data.frame(cbind(bt.pl, bt.pl_fit, bt.pl_pred))
+df_bt.pl[, c(1:2, 6, 12:13, 17, 23:25)]
+df1_bt.pl <- df_bt.pl[, c(1:2, 6, 12:13, 17, 23:25)] |>
+  filter(Time == "After") 
+df1_bt.pl
+
+# filter the data frame for mean value by year
+df2_bt.pl <- df_bt.pl |>
+  filter(Time == "After") |>
+  group_by(Year) |>
+  summarise(mean = mean(Biomass_100), # this is the mean by year
+            fit = mean(fit), # this is teh fixed effect for that year
+            se = mean(se.fit) # this is teh SE for that year
+  )
+# see scratch_pad.glm for notes about calculating standard error
+
+# plot with predicted line, and confidence intervals and predicted value for the Before:impact period
+
+png("output/fade_pool_BTbiomass.png", pointsize=10, width=2800, height=2000, res=600)
+plot(as.numeric(as.character(df2_bt.pl$Year)), df2_bt.pl$mean, pch = 16, ylim = c(200, 2000), xlab = "Year", ylab = "Mean Biomass Estimate (g/100 sq. m)")
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
+# note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
+
+yr_1988 <- df_bt.pl$bt.pl_fit[1]
+yr_1989 <- df_bt.pl$bt.pl_fit[8]
+abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+
+dev.off()
+
 # END ----
 

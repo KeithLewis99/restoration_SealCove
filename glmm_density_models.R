@@ -1304,5 +1304,100 @@ summary(asyoyl_den.glmm2)
 mean_by_site(asyoy.lu.density.station, "lunker", "d")
 # Driven by C3
 
+# fading plots ----
+## riffles ----
+### see scratch_pad_glm.R for all the rationale and justification for why this works
+
+# back transformed
+bt.np_fit <- fitted(bt_den.glmm1, se.fit=T)
+
+# log scale
+bt.np_pred <- as.data.frame(predict(bt_den.glmm1, se.fit = T))
+
+# random effect
+bt.np_rdm <- ranef(bt_den.glmm1)
+
+
+# combine fitted and predicted values with the dataframe
+df_bt.np <- as.data.frame(cbind(bt.np, bt.np_fit, bt.np_pred))
+df_bt.np[, c(1:2, 6, 12:13, 17, 23:25)]
+df1_bt.np <- df_bt.np[, c(1:2, 6, 12:13, 17, 23:25)] |>
+  filter(Time == "After" & Treatment == "Impact") 
+df1_bt.np
+
+# filter the data frame for mean value by year
+df2_bt.np <- df_bt.np |>
+  filter(Time == "After" & Treatment == "Impact") |>
+  group_by(Year) |>
+  summarise(mean = mean(Density_100), # this is the mean by year
+            fit = mean(fit), # this is teh fixed effect for that year
+            se = mean(se.fit) # this is teh SE for that year
+  )
+# see scratch_pad.glm for notes about calculating standard error
+
+# website on rescaling png: https://climate-cms.org/posts/2019-03-06-generating-print-quality-plots.html
+# plot with predicted line, and confidence intervals and predicted value for the Before:impact period
+
+png("output/fade_np_BTdensity.png", pointsize=10, width=2800, height=2000, res=600)
+
+plot(as.numeric(as.character(df2_bt.np$Year)), df2_bt.np$mean, pch = 16, ylim = c(10, 40), xlab = "Year", ylab = "Density Estimate (g/100 sq. m)")
+lines(as.numeric(as.character(df2_bt.np$Year)), exp(df2_bt.np$fit), col="black")
+# note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
+lines(as.numeric(as.character(df2_bt.np$Year)), exp(df2_bt.np$fit+1.96*df2_bt.np$se), col="black", lty=2)
+lines(as.numeric(as.character(df2_bt.np$Year)), exp(df2_bt.np$fit-1.96*df2_bt.np$se), col="black", lty=2)
+
+yr_1988 <- df_bt.np$bt.np_fit[1]
+yr_1989 <- df_bt.np$bt.np_fit[8]
+abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+dev.off()
+
+
+
+## pools ----
+# back transformed
+bt.pl_fit <- fitted(btp_den.glmm2, se.fit=T)
+
+# log scale
+bt.pl_pred <- as.data.frame(predict(btp_den.glmm2, se.fit = T))
+
+# random effect
+bt.pl_rdm <- ranef(btp_den.glmm2)
+
+
+# combine fitted and predicted values with the dataframe
+df_bt.pl <- as.data.frame(cbind(bt.pl, bt.pl_fit, bt.pl_pred))
+df_bt.pl[, c(1:2, 6, 12:13, 17, 23:25)]
+df1_bt.pl <- df_bt.pl[, c(1:2, 6, 12:13, 17, 23:25)] |>
+  filter(Time == "After") 
+df1_bt.pl
+
+# filter the data frame for mean value by year
+df2_bt.pl <- df_bt.pl |>
+  filter(Time == "After") |>
+  group_by(Year) |>
+  summarise(mean = mean(Density_100), # this is the mean by year
+            fit = mean(fit), # this is teh fixed effect for that year
+            se = mean(se.fit) # this is teh SE for that year
+  )
+# see scratch_pad.glm for notes about calculating standard error
+
+# plot with predicted line, and confidence intervals and predicted value for the Before:impact period
+
+
+png("output/fade_pool_BTdensity.png", pointsize=10, width=2800, height=2000, res=600)
+
+plot(as.numeric(as.character(df2_bt.pl$Year)), df2_bt.pl$mean, pch = 16, ylim = c(10, 60), xlab = "Year", ylab = "Density Estimate (g/100 sq. m)")
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
+# note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
+
+yr_1988 <- df_bt.pl$bt.pl_fit[1]
+yr_1989 <- df_bt.pl$bt.pl_fit[8]
+abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+
+dev.off()
+
+
 # END ----
 
