@@ -5,7 +5,7 @@ biomass_scr_graph <- read.csv("C:/Users/lewiske/Documents/CAFE/projects/restorat
 ggplot(data=biomass_scr_graph, aes(x=factor(year), y=adut_bt, fill=type))+
   geom_bar(stat="identity", position=position_dodge(), colour="black") + 
   xlab("Year") + ylab("Biomass (g/100 sq meters)") +
-  theme(axis.title.y = element_text(size=18), axis.title.y=element_text(size=18)) +
+#  theme(axis.title.y = element_text(size=18), axis.title.y=element_text(size=18)) +
   scale_fill_grey() +
   theme_bw()
 

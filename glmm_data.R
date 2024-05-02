@@ -193,7 +193,8 @@ BTbyhabitat <- BT_estimates_by_site |>
 
 
 
-BTbyhabitat$YOS<-BTbyhabitat$Year-1990
+BTbyhabitat$YOS <- BTbyhabitat$Year-1990
+BTdensitybyhabitat$YOS <- BTdensitybyhabitat$Year-1990
 
 # pool
 ## BT Biomass ----
