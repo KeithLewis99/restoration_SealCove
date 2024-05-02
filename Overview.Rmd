@@ -699,6 +699,34 @@ p15
 ```
 
 
+BT fading plots
+=====
+
+Column {data-width=350}
+-------------------------------------
+### Density - Riffle
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTdensity.png")
+```
+
+
+### Density - Pool
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_pool_BTdensity.png")
+```
+
+Column {data-width=350}
+-------------------------------------
+### Biomass - Riffle
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTbiomass.png")
+```
+
+
+### Biomass - Pool
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_pool_BTbiomass.png")
+```
 
 
 # Notes
@@ -718,3 +746,5 @@ Moran's I
 https://gis.stackexchange.com/questions/99660/interpreting-morans-i-results  
 You interpret the hypothesis test the same way you do any others. That is, you fail to reject the null hypothesis that there is no spatial auto-correlation in the values of year2009 for this sample.
 
+Fading plots  
+See notes on why BT-biomass-pools has such straight lines.
