@@ -53,8 +53,16 @@ glmm_anova.R is a bunch of figures that I have somewhat redone in glmm_biomass a
 
 glmm_anova.R and mean_stderror_andplots_KL.R are largely redundant.  The difference is that glmm_anova.R has figures for LUNKERS and dot plots showing variation while mean_stderror_andplots_KL.R produces the figures in functions and has baci.plots.
 
-# To do
-- Fig 5 (trend plots) & 7 (large fish plots) where was this done - need the file: haven't received these.
+## BACI  
+The study design, at least on face value is an internally replicated BACI , i.e., its replicated along one stream.  However, it has gaps.  First, there are only two years of pre-impact.  This is not awful but obviously, more would have been better.  The bigger problem is that there is only one pond and one riffle in the Before period and both were destroyed.  
+
+Therefore, for riffles, this is a BACI although its somewhat weak on the Before:Control side and only for the upstream.  
+
+For pools, this study is really more of a Before:After with a little Before.  Therefore, we can't do a BACI and are limited to a one-way ANOVA type model.  
+
+At a broader scale of how generalizable are these results, I believe that this is not pseudoreplication as long as we do not extrapolate the results of the study too far.  The results can probably apply to most streams of similar size in the eastern boreal forest.  Don't want to extrapolate to the Exploits.  
+
+Note that its certainly possible but very logistically difficult and expensive to do an internally replicated BACI on multiple streams over this time period. This does not include allowing for the Impact to be coordinated across multiple sites. 
 
 # Speculations
 - Is Kristin's way right, i.e., take an average of all the pools/riffles?   Yes, I think so.  See justification in Cote code (Note - put where this is - can't find it now; also, i've re-thought this - see below options).  
@@ -209,3 +217,6 @@ Fading plots suggest that there is little change over time, i.e., the restoratio
 - Carpenter approach
 - discuss results  
 - next steps -> Discussion 
+
+# To do
+- Fig 7 (large fish plots) where was this done - need the file: haven't received these.
