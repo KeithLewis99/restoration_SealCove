@@ -1091,6 +1091,9 @@ summary(asp.glmm2)
 mean_by_site(as.pl.biomass.station, "yes", "d")
 baci.plot(as.pl.biomass.baci, "b")
 
+
+
+
 ### LUNKERS ----
 asl.glmm1 <- glmmTMB(
   Biomass_100 ~ Lunker + (1 | Year),

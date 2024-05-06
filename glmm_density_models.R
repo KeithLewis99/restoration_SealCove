@@ -1,3 +1,4 @@
+# source ----
 source("glmm_data.R")
 source("glmm_fun.R")
 
@@ -1046,9 +1047,20 @@ asp_den.glmm2 <- glmmTMB(
 )
 summary(asp_den.glmm2)
 
-# Tweedie doesn't converge
+# Tweedie about the same as asp_den.glmm2 for AIC but dispformula produces NA and diagnostics for this model are poor.
+asp_den.glmm3 <- glmmTMB(
+  Density_100 ~ Time + (1 | Year),
+  #  dispformula = ~ Time, # produces NaN in std errors and 
+  family = tweedie,
+  REML = TRUE,
+  data = as.pl
+)
+summary(asp_den.glmm3)
+
+
 
 anova(asp_den.glmm1, asp_den.glmm2) # this suggests that the model without dispersion is a smidge better - asp_den.glmm1 plus diagnostics for asp_den.glmm2 look awful
+
 
 
 ### diagnostics ----
@@ -1191,7 +1203,7 @@ asyoyp_den.glmm3 <- glmmTMB(
   data = asyoy.pl
 )
 summary(asyoyp_den.glmm3)
-anova(asyoyp_den.glmm2, asyoyp_den.glmm3) # Tweedie is slightly better - parameter estimates differ but all significant -asyoyp_den.glmm3
+anova(asyoyp_den.glmm1, asyoyp_den.glmm3) # Tweedie is slightly better - parameter estimates differ but all significant -asyoyp_den.glmm3
 
 
 ### diagnostics ----
