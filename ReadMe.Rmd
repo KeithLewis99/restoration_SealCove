@@ -79,7 +79,7 @@ Other issues (Dave Cote):
     - Gamma is fine for BT, BTYOY, and ASYOY but not for AS.  They have used Poisson which is not really quite right, i.e., a discrete distribution for non-discrete data. 
     Talked this over with Paul Regular and Dave Fifield - could do a hurdle model.  The reason for a hurdle (delta) model is that Keith Clarke believes that these are true zeros.  
     - Independence issues - see Zuur and Dave.  
-        - Dave showed me how to look at Temporal Independence and Spatial independence using package DHARMa (https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma).  We did Temproal by year and there are no issues.  Spatial will require lat/long converted to UTM.  However, i'm not sure how the "Stations" in BT_estimates_by_site correspond to those on the map (see below).  See glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R.  
+        - Dave F showed me how to look at Temporal Independence and Spatial independence using package DHARMa (https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html#workflow-in-dharma).  We did Temproal by year and there are no issues.  Spatial will require lat/long converted to UTM.  However, i'm not sure how the "Stations" in BT_estimates_by_site correspond to those on the map (see below).  See glmm_biomass_models.R, glmm_density_models.R, and glmm_anova.R.  
 Data issue:  note that coordinatesA has station 45 which only exists in 1993 and seems to be a combination of 4 and 5. Up until now, I have been treating it as 4.  I think its best to delete it as we really don't know what it is and it seems to have multiple areas.  
         
 # How I decided on the final approach
@@ -131,7 +131,9 @@ datatable(tab1, rownames = F, class = 'cell-border stripe', height = 80,  option
   formatStyle(columns = colnames(.$x$data), `font-size` = "20px")
 ```
 
-Good website on model syntax https://stats.stackexchange.com/questions/477338/reading-multilevel-model-syntax-in-intuitive-ways-in-r-lme4
+Good website on model syntax https://stats.stackexchange.com/questions/477338/reading-multilevel-model-syntax-in-intuitive-ways-in-r-lme4  
+
+Note that Sean Anderson has developed sdmTMB which Krista Baker is using.  I think that this is a very good package but not needed because its very focused on spatial distribution and indeed, was made for species distribution models (hence "sdm").  glmmTMB is the more widely used package so stick with that for now.
 
 For curvilinear models:  
 #https://stackoverflow.com/questions/24192428/what-does-the-capital-letter-i-in-r-linear-regression-formula-mean 
@@ -139,7 +141,9 @@ For curvilinear models:
 # Dispersion formula
 INT is for Interaction, not intercept.  dispformula ~ Int is therefore to account for differences in standard errors among the different interaction levels.  This works for non-pools because the non-pools have the full BACI design.  The dispformula changes to ~ Time for pools and ~ Lunkers for the LUNKER analysis because there were no pools as controls (either before or after).  
 
-Note: The conditional model fits the mean, the dispersion models the variance via a log-link(see help("glmmTMB")). https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb
+Note: The conditional model fits the mean, the dispersion models the variance via a log-link(see help("glmmTMB")). https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb  
+
+Note that I do not really understand the impact that this has on model outputs, especially fitted values.  I can reconstruct fitted values for a lm, glm, and glmm but not for zero inflated (hurdle) or dispersion.  Remember that mixed models have an additional term while zero-inflated(hurdle) have an extra equation to model the zeros v non-zero values - again, not sure how this plays into calculating the fitted values.  For dispersion, I assume that its just bringing in another term in the main model but not sure.
 
 # Diagnostics
 I have spent a great deal of time looking at the diagnostics and for some tests, I can't get a model that doesn't violate at least some of the assumptions at least a bit.  Sometimes, the model won't converge if I make it too complicated.  In other cases, fixing one diagnostic makes causes other diagnostics to go bad.  I talked to Krista Baker and her suggestion was to document what was done and present the results.  If there were diagnostics that were violated, then you did your best and just need to temper the interpreations accordingly.   
@@ -198,11 +202,11 @@ I don't agree with this approach. Aside from the original issues with using glm 
 
 # The story
 
-For BT, there are more fish and higher biomass in pools than riffles.  There is a general increase in the pools but this is driven to some degree by 2016 - suggests more fish.  The riffle controls are oscilate without trend upstream and downstream while density is domeshaped downstream but increasing upstream suggesting bigger fish.  
+For BT, there are more fish and higher biomass in pools than riffles.  There is a general increase in the pools but this is driven to some degree by 2016 - suggests more fish.  The riffle controls oscilate without trend upstream and downstream while density is dome-shaped downstream but increasing upstream suggesting bigger fish.  
 
 BTYOY there are more fish in the riffles than the pools.  BTYOY generally decrease in biomass and density for all although downstream is dome-shaped.  Perhaps this is due to canabalism.
 
-AS may have a few more fish in the riffles but biomass is higher in the pools.  Density and biomass oscilate without trend in the pools but density increases in the treatment riffles while biomass levels off.  Both biomass and density seem to increase in teh controls.
+AS may have a few more fish and higher biomass in the riffles.  Density and biomass oscilate without trend in the pools but density increases in the treatment riffles while biomass levels off.  Both biomass and density seem to increase in teh controls.
 
 ASYOY there are more fish in the riffles than the pools. The original pools had far more ASYOY than the created pools which generally had low ASYOY.  They also had more fish than the riffles.  There is a general decreasing or domeshaped trend for the riffles.
 
@@ -210,13 +214,16 @@ Lunkers appear to be good for BT but for AS, there is no effect.  For YOY, pool 
 
 Also, there appears to be some relationship between adult and YOY but it is strongest for BT in pools.  But this is testing hypotheses after looking at the data and therefore, a post-hoc hypothesis. But Clarke or Kristin might have thought of this before hand so bring it up.
 
-Fading plots suggest that there is little change over time, i.e., the restoration has worked in the long term.
+Fading plots suggest that there is little change over time, i.e., the restoration has worked in the long term.  
+
+Analytical problem with AS and ASYOY density in pools.  
+
+Basically, the density and biomass for AS in pools looks the same and this is confirmed by the stats for biomass but not for density.  Density is a ziGamma with dispersion while biomass is basic model with Tweedie.  Tweedie doesn't work for density due to convergence issues.  
+
+But for ASYOY, the graphs look very different - pools are much higher before than after.  This is confrimed by the stats for biomass but not density.  With density, a quadradic term for year was needed to get the resids to look ok and this may have soaked up all the variance.  
 
 # Meeting for early May with Clarke and Kristin
-- stats overview and discussion 
-- Carpenter approach
-- discuss results  
-- next steps -> Discussion 
+
 
 # To do
 - Fig 7 (large fish plots) where was this done - need the file: haven't received these.
