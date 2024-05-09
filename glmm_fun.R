@@ -76,7 +76,7 @@ spatialAutoCorrGG_fun <- function(x, xtextRes = -8, xtextSite = 10) {
 #' Title
 #'
 #' @param x 
-#' @param y filter variable: pools or non-pools - pool == "yes", non-pool == "no
+#' @param y filter variable: pools or non-pools - pool == "yes", non-pool == "no, LUNKER == "lunker"
 #' @param z filter variable: density or biomass, density == "d", biomass == "b"
 #'
 #' @return a ggplot with Seal Cove station on the x-axis and density/biomass on the y-axis with the means and standard deviations by Control and Impact for non-pools, Before-After for Pools, and Lunker/no Lunker for the pools on Impact sites.
@@ -90,15 +90,15 @@ mean_by_site <- function(x, y, z){
     geom_point(size=4, position=position_dodge(1)) +
     theme_bw() +
     theme(axis.text.x  = element_text(angle=90, vjust=0.4, size=10)) +
-    facet_grid(~Treatment) +
+     facet_grid(~factor(Treatment, levels = c("Control", "Impact"))) +
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.5, position=position_dodge(1)) +
     {if (z == "b"){
       ylab("Mean Biomass Estimate (g/100 sq. m)")
     } else if (z == "d"){
-      ylab("Density Estimate (g/100 sq. m)")
+      ylab("Density Estimate (#/100 sq. m)")
       }
     } +
-    xlab("Year") +
+    xlab("Station") +
     theme(panel.grid.minor=element_blank(),
           panel.grid.major=element_blank())
 } else if (y == "yes") {
@@ -106,15 +106,17 @@ mean_by_site <- function(x, y, z){
     geom_point(size=4, position=position_dodge(1)) +
     theme_bw() +
     theme(axis.text.x  = element_text(angle=90, vjust=0.4, size=10)) +
-    facet_grid(~Time) +
+    #facet_grid(forcats::fct_rev(Time)) +
+    #facet_grid(~Time) +
+    facet_grid(~factor(Time, levels = c("Before", "After"))) +
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.5, position=position_dodge(1)) +
     {if (z == "b"){
       ylab("Mean Biomass Estimate (g/100 sq. m)")
     } else if (z == "d"){
-      ylab("Density Estimate (g/100 sq. m)")
+      ylab("Density Estimate (#/100 sq. m)")
     }
     } +
-    xlab("Year") +
+    xlab("Station") +
     theme(panel.grid.minor=element_blank(),
           panel.grid.major=element_blank())
   } else if (y == "lunker") {
@@ -123,6 +125,7 @@ mean_by_site <- function(x, y, z){
     theme_bw() +
     theme(axis.text.x  = element_text(angle=90, vjust=0.4, size=10)) +
     facet_grid(~Lunker) +
+      #facet_grid(forcats::fct_rev(Treatment) ~ forcats::fct_rev(Time)) +
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.5, position=position_dodge(1)) +
       {if (z == "b"){
         ylab("Mean Biomass Estimate (g/100 sq. m)")
@@ -130,7 +133,7 @@ mean_by_site <- function(x, y, z){
         ylab("Density Estimate (# fish/100 sq. m)")
       }
       } +
-    xlab("Year") +
+    xlab("Station") +
     theme(panel.grid.minor=element_blank(),
           panel.grid.major=element_blank())
   }
@@ -156,10 +159,10 @@ baci.plot <- function(x, z){
     {if (z == "b"){
       ylab("Mean Biomass Estimate (g/100 sq. m)")
     } else if (z == "d"){
-      ylab("Density Estimate (g/100 sq. m)")
+      ylab("Density Estimate (#/100 sq. m)")
     }
     } +
-  xlab("Year") +
+  xlab("Station") +
   theme(panel.grid.minor=element_blank(),
         panel.grid.major=element_blank())
   return(p1)
