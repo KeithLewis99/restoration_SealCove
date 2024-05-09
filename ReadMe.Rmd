@@ -107,13 +107,34 @@ https://stats.stackexchange.com/questions/116770/reml-or-ml-to-compare-two-mixed
 - 3. zero inflated or hurdle
 - 4. tweedie
 
-Inflating the zeros is probably not awful but not great (see Zuur et al. 20009).  Using an improper distribution isn't a great idea.  On consultation with Keith Clarke, the zeros are probably real, i.e., structural and therefore, zero-inflated are not appropriate.  Hurdle models (also called delta and maybe also called zero-augmented) are appropriate.  A "manual" hurdle model was very helpful for getting me to understand how hurdle models work, i.e., what process produces the zeros.  It looks like sdmTMB can handle these but so can glmmTMB.  However, for sdmTMB, its not clear to me exactly how to do the diagnostics and these are specifically for spatial models.  
+Inflating the zeros is probably not awful but not great (see Zuur et al. 2009).  Using an improper distribution isn't a great idea.  Zuur et al. 2009, pg XXXXXX explains the difference between zero-inflated and hurdle models; the former is real/structural, the latter is real.  See Sean Anderson page for great explanation: https://seananderson.ca/2014/05/18/gamma-hurdle/ - see also Google Chrome, stats, zi-hurdle
+
+
+On consultation with Keith Clarke, the zeros are probably real, i.e., structural and therefore, zero-inflated are not appropriate.  Hurdle models (also called delta and maybe also called zero-augmented) are appropriate.  A "manual" hurdle model was very helpful for getting me to understand how hurdle models work, i.e., what process produces the zeros.  It looks like sdmTMB can handle these but so can glmmTMB.  However, for sdmTMB, its not clear to me exactly how to do the diagnostics and these are specifically for spatial models.   
 On the principle of avoiding statistical puritanism and producing a model that is "good enough", I think a hurdle Gamma (ziGamma) or Tweedie distributed glmm in glmmTMB is the best balance of accounting for zeros and still having diagnostics at least for the BTYOY.  Not sure about AS and ASYOY.  
 
 This website advises that zi models are a mix while hurdle models have only structural zeros. Clarke suggested in an email that these are structural zeros as larger conspecifics will eat the smaller fish, ergo use a hurdle model.
 https://biol609.github.io/lectures/13_zinf.html#53_the_error_generating_process  
 
-Some thoughts on Tweedie dist: https://stats.stackexchange.com/questions/582124/when-should-one-use-a-tweedie-glm-over-a-zero-inflated-glm  
+Some thoughts on Tweedie dist:   https://stats.stackexchange.com/questions/582124/when-should-one-use-a-tweedie-glm-over-a-zero-inflated-glm  
+
+glmmTMB family help file "a modified version of Gamma that skips checks for zero values, allowing it to be used to fit hurdle-Gamma models"  
+
+Bolker suggests no difference because a ziGamma doesn't make sense except as a hurdle model: https://stackoverflow.com/questions/65745148/is-there-a-difference-between-gamma-hurdle-two-part-models-and-zero-inflated-g  
+
+## syntax  
+From https://cran.r-project.org/web/packages/glmmTMB/vignettes/glmmTMB.pdf
+ziformula = ~1 applies a single zero-inflation parameter to all observations. Default is ziformula ~0 which excludes zero inflation.  
+In same text, they use truncated negative binomial and ziformula =~. (not sure what this means).  
+
+In this text "https://backend.orbit.dtu.dk/ws/portalfiles/portal/154739064/Publishers_version.pdf", they also use truncated distributions and zi = ~spp which suggests to me that the zero inflation varies by species.  
+
+From glmmTMB help file, search under family:
+ziGamma
+a modified version of Gamma that skips checks for zero values, allowing it to be used to fit hurdle-Gamma models.  So, ziformula = ~1 is right for gamma distributed hurdle models!!!!!!!!!!!!  
+
+Note that the cannonical link for ziGamma is inverse.  I think that I just used log because I saw it and its easier to think this way.  Bolker also used it here: https://stackoverflow.com/questions/65745148/is-there-a-difference-between-gamma-hurdle-two-part-models-and-zero-inflated-g
+
 
 
 # Model approaches and packages
