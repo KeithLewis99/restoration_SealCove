@@ -18,8 +18,6 @@ library(cowplot)
 
 
 
-
-
 # BT ----
 ## glm ----
 # same as Cote but with biomass for all sites
@@ -225,6 +223,8 @@ baci.plot(bt.np.biomass.baci, "b")
 ### hurdle gamma with dispersion
 btyoy.glmm3 <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
+  #Biomass_100 ~ Time * Treatment + numYear + (1 | Year), # bad diagnostics
+  #Biomass_100 ~ Time * Treatment + I(numYear^2) + (1 | Year), #NAs
   dispformula = ~ Int,
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
@@ -260,8 +260,8 @@ anova(btyoy.glmm3, btyoy.glmm4) # tweadie looks somewhat better (btyoy.glmm4) - 
 
 
 ## diagnostics ----
-# OK, the btyoy.glmm4 model is best.  Is it valid.  
-btyoy.glmm4_simres <- simulateResiduals(btyoy.glmm4)
+# simulate resids
+btyoy.glmm4_simres <- simulateResiduals(btyoy.glmm3)
 plot(btyoy.glmm4_simres)
 # The normality and homogeneity of variance look great.  
 
@@ -308,11 +308,16 @@ btyoy.np$pos <- numFactor(btyoy.np$X, btyoy.np$Y) # this is to create a position
 
 #https://stackoverflow.com/questions/24192428/what-does-the-capital-letter-i-in-r-linear-regression-formula-mean 
 btyoy.glmm4_new <- glmmTMB(
-  Biomass_100 ~ Time * Treatment + I(as.numeric(Year)^2) + (1 | Year),
+  #Biomass_100 ~ Time * Treatment + I(as.numeric(Year)^2) + (1 | Year),
+  Biomass_100 ~ Time * Treatment + numYear + (1 | Year),
+  #Biomass_100 ~ Time * Treatment + I(numYear^2) + (1 | Year), # NA
 #  Biomass_100 ~ Time * Treatment + as.factor(Type) + (1 | Year),
   dispformula = ~ Int,
   family = tweedie, # link is log
   REML = TRUE,
+# control = glmmTMBControl(  # gives NAs
+#   optimizer = optim,
+#   optArgs=list(method = "BFGS")),
   data = btyoy.np
 )
 summary(btyoy.glmm4_new)
@@ -324,8 +329,20 @@ testZeroInflation(btyoy.glmm4_new_simres)
 
 btyoy.glmm4_new_simres_recalc <- recalculateResiduals(btyoy.glmm4_new_simres, group = btyoy.np$Year)
 testTemporalAutocorrelation(btyoy.glmm4_new_simres_recalc, time = unique(btyoy.np$Year))
+
+
+### spatial independence
+# recalculate resids with stations as the grouping variable
 btyoy.glmm4_new_simres_recalcSpace <- recalculateResiduals(btyoy.glmm4_new_simres, group = as.factor(bt.np$Station_new))
-unique(btyoy.np$Station_new) # OK - there are only 13 values in this 
+unique(btyoy.np$Station_new) 
+
+testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
+
+spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_simres_recalcSpace)  
+btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_simres_recalcSpace, coords.np)
+spatialAutoCorrGG_fun(btyoy.np.biomass.all)
+
+# OK - there are only 13 values in this 
 # This is a substantial improvement over the previous ito temporal residuals.  The only problem is one lag is slightly over the blue line but this is fine - p is far from alpha.  But there is some curvilinear trend in the resids and the spatial resids are awful.
 summary(btyoy.glmm4_new)
 
@@ -333,11 +350,15 @@ summary(btyoy.glmm4_new)
 
 # this helps - plot and temporal resids look fine but 
 btyoy.glmm4_new1 <- glmmTMB(
-  Biomass_100 ~ Time*Treatment + Treatment*I(as.numeric(Year)^2) + (1 | Year),
+  #Biomass_100 ~ Time*Treatment + Treatment*I(numYear^2) + (1 | Year), #NAs
+  Biomass_100 ~ Time*Treatment + Treatment*numYear + (1 | Year),
   #  Biomass_100 ~ Time + Treatment + Treatment*I(as.numeric(Year)^2) + (1 | Year),
   dispformula = ~ Int,
   family = tweedie, # link is log
   REML = TRUE,
+  control = glmmTMBControl(  # gives NAs
+    optimizer = optim,
+    optArgs=list(method = "BFGS")),
   data = btyoy.np
 )
 summary(btyoy.glmm4_new1)
@@ -354,19 +375,18 @@ testTemporalAutocorrelation(btyoy.glmm4_new_simres_recalc1, time = unique(btyoy.
 
 ### spatial independence
 # recalculate resids with stations as the grouping variable
-btyoy.glmm4_simres_recalcSpace <- recalculateResiduals(btyoy.glmm4_new_simres1, group = as.factor(btyoy.np$Station_new))
+btyoy.glmm4_simres_recalcSpace1 <- recalculateResiduals(btyoy.glmm4_new_simres1, group = as.factor(btyoy.np$Station_new))
 
-testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
+testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace1, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
 
-spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_simres_recalcSpace)  
+spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_simres_recalcSpace1)  
 btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_simres_recalcSpace, coords.np)
 
 spatialAutoCorrGG_fun(btyoy.np.biomass.all)
-
-
-
 # Spatials aren't great but Moran's I is not sig.  so with
-summary(btyoy.glmm4_new1)
+
+# decided to go with btyoy.glmm4_new - its not great but the autocorro is not significant and resids aren't horrible - interpret with caution
+summary(btyoy.glmm4_new)
 mean_by_site(btyoy.np.biomass.station, "no", "b")
 baci.plot(btyoy.np.biomass.baci, "b")
 
@@ -742,7 +762,8 @@ testTemporalAutocorrelation(btl.glmm2_simres_recalc, time = unique(bt.lu$Year))
 
 # temporal resids aren't great so try this
 btl.glmm2_new <- glmmTMB(
-  Biomass_100 ~ Lunker + as.numeric(Year) + (1 | Year),
+  #Biomass_100 ~ Lunker + as.numeric(Year) + (1 | Year),
+  Biomass_100 ~ Lunker + numYear + (1 | Year),
   #  dispformula = ~ Lunker,
   family = Gamma(link = log),
   REML = TRUE,
@@ -790,6 +811,17 @@ mean_by_site(bt.lu.biomass.station, "lunker", "d")
 
 ### glmm ----
 #### Gamma is OK here because there are no zeros but it doesn't converge
+btyoyp.glmm0 <- glmmTMB(
+  Biomass_100 ~ Time + numYear + (1 | Year),
+  #Biomass_100 ~ Time + I(numYear^2) + (1 | Year),
+#  dispformula = ~ Time,
+  family = ziGamma(link = "log"),
+  ziformula = ~1,
+  REML = TRUE,
+  data = btyoy.pl
+)
+summary(btyoyp.glmm0) # this is OK but resids vs time aren't great
+
 #### Use Tweedie instead
 
 btyoyp.glmm1 <- glmmTMB(
@@ -816,7 +848,7 @@ anova(btyoyp.glmm1, btyoyp.glmm2) # this suggests that model btyoyp.glmm1 is a f
 ## The estimates are virtually identical but the Std. Errors are a fair bit smaller than the model with dispersion and p-value changes.  Proceed with btyoyp.glmm1
 
 ### diagnostics ----
-btyoyp.glmm1_simres <- simulateResiduals(btyoyp.glmm1)
+btyoyp.glmm1_simres <- simulateResiduals(btyoyp.glmm0)
 # str(btyoyp.glmm1_simres,1)
 plot(btyoyp.glmm1_simres)
 # The normality is not great but homogeneity is pretty good.
@@ -851,10 +883,15 @@ testTemporalAutocorrelation(btyoyp.glmm1_simres_recalc, time = unique(btyoy.pl$Y
 ### Explore ----
 btyoyp.glmm1_new <- glmmTMB(
   #Biomass_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
-  Biomass_100 ~ Time + as.numeric(Year) + (1 | Year),
+  #Biomass_100 ~ Time + as.numeric(Year) + (1 | Year),
+  #Biomass_100 ~ Time + I(numYear^2) + (1 | Year), #NA
+  Biomass_100 ~ Time + numYear + (1 | Year),
   dispformula = ~ Time,
   family = tweedie,
   REML = TRUE,
+   control = glmmTMBControl(  # gives NAs
+     optimizer = optim, 
+     optArgs=list(method = "BFGS")),
   data = btyoy.pl
 )
 
@@ -882,17 +919,16 @@ testTemporalAutocorrelation(btyoyp.glmm1_new_simres_recalc, time = unique(btyoy.
 # btyoyp.glmm1_new_simres_recalcSpace <- recalculateResiduals(btyoyp.glmm1_new_simres, group = as.factor(bt.pl$Station_new))
 # testSpatialAutocorrelation(btyoyp.glmm1_simres_recalcSpace, x = coords.pl$X, y = coords.pl$Y)
 # 
-
-summary(btyoyp.glmm1_new)
+summary(btyoyp.glmm1_new) # go with this
+summary(btyoyp.glmm0) # temp resids aren't great
 mean_by_site(btyoy.pl.biomass.station, "yes", "d")
-baci.plot(btyoy.pl.biomass.baci, "b")
+
 
 ### LUNKERS ----
 
 btyoyl.glmm1 <- glmmTMB(
   Biomass_100 ~ Lunker + (1 | Year),
   dispformula = ~ Lunker,
-  # family = Gamma(link = log),
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
   data = btyoy.lu
@@ -940,9 +976,10 @@ testTemporalAutocorrelation(btyoyl.glmm1_simres_recalc, time = unique(bt.lu$Year
 
 btyoyl.glmm1_new <- glmmTMB(
   # Biomass_100 ~ Lunker + as.numeric(Year) + (1 | Year),
-  Biomass_100 ~ Lunker*as.numeric(Year) + (1 | Year),
+  #Biomass_100 ~ Lunker*as.numeric(Year) + (1 | Year),
+  Biomass_100 ~ Lunker + numYear + (1 | Year),
   #Biomass_100 ~ Lunker + Lunker:as.numeric(Year) + (1 | Year),
-  dispformula = ~ Lunker,
+  #dispformula = ~ Lunker,
   # family = Gamma(link = log),
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
@@ -998,8 +1035,8 @@ mean_by_site(btyoy.lu.biomass.station, "lunker", "d")
 #### Use Tweedie instead
 
 asp.glmm1 <- glmmTMB(
-  Biomass_100 ~ Time + (1 | Year),
-#  dispformula = ~ Time,  # doesn't converge
+  #Biomass_100 ~ Time + (1 | Year),
+  #dispformula = ~ Time,  # doesn't converge
   family = ziGamma(link = "log"),
   ziformula = ~1,
   REML = TRUE,
@@ -1019,7 +1056,7 @@ summary(asp.glmm2)
 anova(asp.glmm1, asp.glmm2) # this suggests that the Tweedie model with dispersion is a smidge better than the others - asp.glmm2
 
 ### diagnostics ----
-asp.glmm2_simres <- simulateResiduals(asp.glmm2)
+asp.glmm2_simres <- simulateResiduals(asp.glmm1)
 # str(asp.glmm2_simres,1)
 plot(asp.glmm2_simres)
 # The normality is not great but homogeneity is pretty good.
@@ -1054,19 +1091,37 @@ testTemporalAutocorrelation(asp.glmm2_simres_recalc, time = unique(as.pl$Year))
 ### Explore ----
 
 asp.glmm2_new <- glmmTMB(
-  Biomass_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
+  #Biomass_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
+  Biomass_100 ~ Time + I(numYear^2) + (1 | Year), # gives NAs
   #Biomass_100 ~ Time + as.numeric(Year) + (1 | Year), - problems with resids
   # Biomass_100 ~ Time + (1 | Year),
-  #  dispformula = ~ Time, # produces NaN in std errors and 
+  # dispformula = ~ Time, # produces NaN in std errors and 
   family = tweedie,
   REML = TRUE,
+  # control = glmmTMBControl(  # gives NAs
+  #   optimizer = optim, 
+  #   optArgs=list(method = "BFGS")),
   data = as.pl
 )
 summary(asp.glmm2_new)
 
 
+asp.glmm3 <- glmmTMB(
+  Biomass_100 ~ Time + (1 | Year),
+  #Biomass_100 ~ Time + numYear + (1 | Year), # bad heterogeneity
+  dispformula = ~ Time,
+  family = ziGamma(link = "log"),
+  ziformula = ~1,
+  REML = TRUE,
+  control = glmmTMBControl(
+    optimizer = optim,
+    optArgs=list(method = "BFGS")),
+  data = as.pl
+)
+summary(asp.glmm3)
+
 ### diagnostics ----
-asp.glmm2_new_simres <- simulateResiduals(asp.glmm2_new)
+asp.glmm2_new_simres <- simulateResiduals(asp.glmm3)
 # str(asp.glmm2_simres,1)
 plot(asp.glmm2_new_simres)
 # The normality is not great nor is homogeneity
@@ -1087,10 +1142,8 @@ testTemporalAutocorrelation(asp.glmm2_new_simres_recalc, time = unique(as.pl$Yea
 # testSpatialAutocorrelation(asp.glmm2_simres_recalcSpace, x = coords.pl$X, y = coords.pl$Y)
 
 # The change in the model makes some difference with temporal resids but makes other plots worse.  But this is no where near signficant so proceed with original
-summary(asp.glmm2)
+summary(asp.glmm3)
 mean_by_site(as.pl.biomass.station, "yes", "d")
-baci.plot(as.pl.biomass.baci, "b")
-
 
 
 
@@ -1274,9 +1327,14 @@ testTemporalAutocorrelation(asyoyl.glmm2_simres_recalc, time = unique(as.lu$Year
 ### new model ----
 #### https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html
 asyoyl.glmm2_new <- glmmTMB(
-  Biomass_100 ~ Lunker + as.numeric(Year) + (1 | Year),
+  #Biomass_100 ~ Lunker + as.numeric(Year) + (1 | Year),
+  Biomass_100 ~ Lunker + numYear + (1 | Year),
+  #Biomass_100 ~ Lunker + I(numYear^2) + (1 | Year), # gets NAs
   family = ziGamma(link = "log"),
   ziformula = ~1,  REML = TRUE,
+  # control = glmmTMBControl(  # gives NAs
+  #   optimizer = optim,
+  #   optArgs=list(method = "BFGS")),
   data = asyoy.lu
 )
 summary(asyoyl.glmm2_new)
@@ -1290,9 +1348,10 @@ plot(asyoyl.glmm2_new_simres)
 # But, to look at temporal autocorrelation, we need to recalculate them with Year as a grouping variable
 asyoyl.glmm2_new_simres_recalc <- recalculateResiduals(asyoyl.glmm2_new_simres, group = as.lu$Year)
 testTemporalAutocorrelation(asyoyl.glmm2_new_simres_recalc, time = unique(as.lu$Year))
-# resids have a real temporal trend as does 
+# resids have a bit of a temporal trend as does 
 
 summary(asyoyl.glmm2)
+summary(asyoyl.glmm2_new) # go with this - its all driven by one site anyway
 mean_by_site(asyoy.lu.biomass.station, "lunker", "d")
 
 
