@@ -252,14 +252,17 @@ btyoy.glmm4 <- glmmTMB(
   # family=ziGamma(link="log"), ziformula = ~1,
   family = tweedie, # link is log
   REML = TRUE,
+  control = glmmTMBControl(
+    optimizer = optim, 
+    optArgs=list(method = "BFGS")),
   data = btyoy.np
 )
 summary(btyoy.glmm4)
-anova(btyoy.glmm3a, btyoy.glmm4) # Tweedie looks alot better - proceed to check diagnostics - btyoy.glmm4
+anova(btyoy.glmm3a, btyoy.glmm4) # Tweedie looks alot better but only with the dispformula term - proceed to check diagnostics - btyoy.glmm4
 
 
 ## diagnostics ----
-# OK, the btyoy.glmm4 model is best.  Is it valid.  
+# btyoy.glmm4 model is best but is it valid.  
 btyoy.glmm4_simres <- simulateResiduals(btyoy.glmm4)
 plot(btyoy.glmm4_simres)
 # The normality and homogeneity of variance look great.  
@@ -613,26 +616,26 @@ baci.plot(as.np.density.baci, "d")
 ## glmm -----
 asyoy_den.glmm1 <- glmmTMB(
   Density_100 ~ Time * Treatment + (1 | Year),
-  dispformula = ~ Int,
-  family = ziGamma(link = "log"),
-  ziformula = ~1,
-  REML = TRUE,
-  control = glmmTMBControl(
-    optimizer = optim, 
-    optArgs=list(method = "BFGS")),
+    dispformula = ~ Int,
+    family = ziGamma(link = "log"),
+    ziformula = ~1,
+    REML = TRUE,
+    control = glmmTMBControl(
+      optimizer = optim, 
+      optArgs=list(method = "BFGS")),
   data = asyoy.np
 )
-summary(asyoy_den.glmm1) # this is producing NaN and no AIC value
-# str(asyoy_den.glmm1)
+summary(asyoy_den.glmm1) 
 
 
 ## Compre the results of glmmTMB to glm.  The estimates are virtually identical but the Std. Errors are much smaller for glmmTMB.
 ### PLOTS/RESULTS WITH AND WITHOUT DISPERSION FOR THE GLMMTMB.  
-asyoy_den.glmm2 <- glmmTMB(Density_100~Time*Treatment + (1|Year), 
-                       family = ziGamma(link = "log"),
-                       ziformula = ~1,
-                       REML = TRUE,
-                       data=asyoy.np)
+asyoy_den.glmm2 <- glmmTMB(
+  Density_100~Time*Treatment + (1|Year), 
+       family = ziGamma(link = "log"),
+       ziformula = ~1,
+       REML = TRUE,
+     data=asyoy.np)
 summary(asyoy_den.glmm2)
 #str(asyoy_den.glmm2)
 
@@ -649,7 +652,7 @@ asyoy_den.glmm3 <- glmmTMB(
 summary(asyoy_den.glmm3)
 anova(asyoy_den.glmm1, asyoy_den.glmm2)
 anova(asyoy_den.glmm2, asyoy_den.glmm3)
-anova(asyoy_den.glmm1, asyoy_den.glmm3)# ziGamma a little better than Tweedie but homogeneity of variance for ziGamma is poor.  Got with asyoy_den.glmm3 since we can't do a dispersion formula
+anova(asyoy_den.glmm1, asyoy_den.glmm3)# ziGamma with dispersion is best.  Go with asyoy_den.glmm1
 
 # OK - the glmm2 model is slightly better than the others but the homogeneity of variance is bad.  glmm1 is better than glmm3 so go with this one.
 
@@ -848,7 +851,7 @@ mean_by_site(bt.lu.density.station, "lunker", "d")
 
 btyoyp_den.glmm0 <- glmmTMB(
   Density_100 ~ Time + (1 | Year),
-#  Density_100 ~ Time + I(numYear^2) + (1 | Year), doesn't work
+#  Density_100 ~ Time + numYear + (1 | Year), #numYear and numYear^2 don't work
   dispformula = ~ Time,
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
@@ -869,7 +872,8 @@ anova(btyoyp_den.glmm0, btyoyp_den.glmm0.5) # problems with homogeneity and temp
 # #### Use Tweedie instead
 btyoyp_den.glmm1 <- glmmTMB(
   Density_100 ~ Time + (1 | Year),
-#  Density_100 ~ Time + I(numYear^2) + (1 | Year),
+#  Density_100 ~ Time + I(numYear^2) + (1 | Year), # gives NAs
+#  Density_100 ~ Time + numYear + (1 | Year), # gives NAs
   dispformula = ~ Time,
   family = tweedie,
   REML = TRUE,
@@ -917,26 +921,26 @@ testTemporalAutocorrelation(btyoyp_den.glmm1_simres_recalc, time = unique(btyoy.
 #### https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html
 #btyoy.pl$numYear <- as.numeric(btyoy.pl$numYear)
 # add year covariate
-btyoyp_den.glmm_new <- glmmTMB(
-  #Density_100 ~ Time + as.numeric(Year) + (1 | Year),
-  Density_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
-  # Density_100 ~ Time + I(numYear^2) + (1 | Year), # this does not work but the above does
-  #Density_100 ~ Time + numYear + (1 | Year), # this does not work
-  dispformula = ~ Time,
-  family = tweedie,
-  REML = TRUE,
-  data = btyoy.pl
-)
-
-
-summary(btyoyp_den.glmm_new)
-btyoyp_den.glmm_new_simres <- simulateResiduals(btyoyp_den.glmm_new)
-plot(btyoyp_den.glmm_new_simres)
-# The normality is much better but still bad and homogeneity is now good
-
-### temporal independence
-btyoyp_den.glmm_new_simres_recalc <- recalculateResiduals(btyoyp_den.glmm_new_simres, group = bt.pl$Year)
-testTemporalAutocorrelation(btyoyp_den.glmm_new_simres_recalc, time = unique(btyoy.pl$Year)) # this helps resids vy time but ACF is now bad for first lag.
+# btyoyp_den.glmm_new <- glmmTMB(
+#   #Density_100 ~ Time + as.numeric(Year) + (1 | Year),
+#   #Density_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
+#   # Density_100 ~ Time + I(numYear^2) + (1 | Year), # this does not work but the above does
+#   #Density_100 ~ Time + numYear + (1 | Year), # this does not work
+#   dispformula = ~ Time,
+#   family = tweedie,
+#   REML = TRUE,
+#   data = btyoy.pl
+# )
+# 
+# 
+# summary(btyoyp_den.glmm_new)
+# btyoyp_den.glmm_new_simres <- simulateResiduals(btyoyp_den.glmm_new)
+# plot(btyoyp_den.glmm_new_simres)
+# # The normality is much better but still bad and homogeneity is now good
+# 
+# ### temporal independence
+# btyoyp_den.glmm_new_simres_recalc <- recalculateResiduals(btyoyp_den.glmm_new_simres, group = bt.pl$Year)
+# testTemporalAutocorrelation(btyoyp_den.glmm_new_simres_recalc, time = unique(btyoy.pl$Year)) # this helps resids vy time but ACF is now bad for first lag.
 
 ### spatial independence
 # recalculate resids with stations as the grouping variable
@@ -944,7 +948,8 @@ testTemporalAutocorrelation(btyoyp_den.glmm_new_simres_recalc, time = unique(bty
 # testSpatialAutocorrelation(btyoyp_den.glmm_new_simres_recalcSpace, x = coords.pl$X, y = coords.pl$Y)
 
 #The fix helps resid patterns but makes the ACF bad.  P no where near alpha so ignore problems. Go with btyoyp_den.glmm_new
-summary(btyoyp_den.glmm_new)
+#summary(btyoyp_den.glmm_new)
+summary(btyoyp_den.glmm1)
 mean_by_site(btyoy.pl.density.station, "yes", "d")
 
 
@@ -1072,7 +1077,7 @@ asp_den.glmm1 <- glmmTMB(Density_100 ~ Time + (1|Year), # adding year doesn't he
                          family = ziGamma(link = "log"),
                          ziformula = ~1,
                         #ziformula = ~Station_new,
-                          #  REML = TRUE,
+                            REML = TRUE,
                           # control = glmmTMBControl(
                           #   optimizer = optim, 
                           #   optArgs=list(method = "BFGS")),
@@ -1118,24 +1123,19 @@ asp_den.glmm3 <- glmmTMB(
 )
 summary(asp_den.glmm3)
 
-asp_den.glmm4 <- glmmTMB(
-  Density_100 ~ Time + (1 | Year),
-  #  dispformula = ~ Time, # produces NaN in std errors and 
-  family = t_family,
-  #zi = ~1,
-  REML = TRUE,
-  data = as.pl
-)
-summary(asp_den.glmm4)
 
-anova(asp_den.glmm1, asp_den.glmm2) # this suggests that the model without dispersion is a smidge better - asp_den.glmm1 plus diagnostics for asp_den.glmm2 look awful; asp_den.glmm1 slightly better than Tweedie and diagnostics are awful
-
+anova(asp_den.glmm1, asp_den.glmm2) # this suggests that the model without dispersion is a smidge better - asp_den.glmm1 plus diagnostics for asp_den.glmm2 look awful; asp_den.glmm1 is slightly better than Tweedie without dispersion formula and diagnostics are awful.  Tweedie with dispersion  is slightly better than asp_den.glmm1, diagnostics are fine and it all makes sense ito output.
+anova(asp_den.glmm1, asp_den.glmm3)
 
 
 ### diagnostics ----
 asp_den.glmm1_simres <- simulateResiduals(asp_den.glmm3)
 plot(asp_den.glmm1_simres)
 # The normality is fine but homogeneity is not great.
+coplot(Density_100 ~ Year | Station_new, as.pl)
+
+temp <- cbind(as.pl, resids = residuals(asp_den.glmm3))
+coplot(resids ~ Year | Station_new ,temp)
 
 
 ### temporal independence
@@ -1163,7 +1163,7 @@ mean_by_site(as.pl.density.station, "yes", z = "d")
 ### LUNKERS ----
 asl_den.glmm1 <- glmmTMB(
   Density_100 ~ Lunker + (1 | Year),
-  # Density_100 ~ Lunker + as.numeric(Year) + (1 | Year), # produces terrible homogeneity
+   #Density_100 ~ Lunker + numYear + (1 | Year), # produces terrible homogeneity
   dispformula = ~ Lunker,
   family = ziGamma(link = "log"),
   ziformula = ~1,
@@ -1207,7 +1207,7 @@ plot(as.lu$Year, as.lu$Density_100)
 # asl_den.glmm1_simres_recalcSpace <- recalculateResiduals(asl_den.glmm1_simres, group = as.factor(bt.lu$Station_new))
 # testSpatialAutocorrelation(asl_den.glmm1_simres_recalcSpace, x = coords.lu$X, y = coords.lu$Y)
 
-summary(asl_den.glmm1)
+summary(asl_den.glmm1) # resids not great but its all driven by C3
 mean_by_site(as.lu.density.station, "lunker", "d")
 
 
@@ -1277,7 +1277,7 @@ anova(asyoyp_den.glmm1, asyoyp_den.glmm3) # Tweedie is slightly better - paramet
 
 
 ### diagnostics ----
-asyoyp_den.glmm3_simres <- simulateResiduals(asyoyp_den.glmm1)
+asyoyp_den.glmm3_simres <- simulateResiduals(asyoyp_den.glmm3)
 plot(asyoyp_den.glmm3_simres)
 # The normality is not great nor is homogeneity but passable.
 
@@ -1337,6 +1337,7 @@ mean_by_site(asyoy.pl.density.station, "yes", "d")
 ### LUNKERS ----
 asyoyl_den.glmm1 <- glmmTMB(
   Density_100 ~ Lunker + (1 | Year),
+#  Density_100 ~ Lunker + numYear + (1 | Year),
   dispformula = ~ Lunker,
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
@@ -1385,6 +1386,8 @@ testTemporalAutocorrelation(asyoyl_den.glmm1_simres_recalc, time = unique(as.lu$
 summary(asyoyl_den.glmm2)
 mean_by_site(asyoy.lu.density.station, "lunker", "d")
 # Driven by C3
+
+
 
 # fading plots ----
 ## riffles ----

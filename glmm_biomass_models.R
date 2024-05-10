@@ -336,10 +336,10 @@ testTemporalAutocorrelation(btyoy.glmm4_new_simres_recalc, time = unique(btyoy.n
 btyoy.glmm4_new_simres_recalcSpace <- recalculateResiduals(btyoy.glmm4_new_simres, group = as.factor(bt.np$Station_new))
 unique(btyoy.np$Station_new) 
 
-testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
+testSpatialAutocorrelation(btyoy.glmm4_new_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
 
-spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_simres_recalcSpace)  
-btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_simres_recalcSpace, coords.np)
+spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_new_simres_recalcSpace)  
+btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_new_simres_recalcSpace, coords.np)
 spatialAutoCorrGG_fun(btyoy.np.biomass.all)
 
 # OK - there are only 13 values in this 
@@ -646,6 +646,7 @@ baci.plot(asyoy.np.biomass.baci, "b")
 
 
 # **POOLS ----
+# **POOLS ----
 
 ## BT ----
 # # using all the data
@@ -673,9 +674,9 @@ baci.plot(asyoy.np.biomass.baci, "b")
 #### Gamma is OK here because there are no zeros
 btp.glmm1 <- glmmTMB(
   Biomass_100 ~ Time + (1 | Year),
-  dispformula = ~ Time,
-  family = Gamma(link = log),
-  REML = TRUE,
+    dispformula = ~ Time,
+    family = Gamma(link = log),
+    REML = TRUE,
   data = bt.pl
 )
 
@@ -684,10 +685,11 @@ summary(btp.glmm1)
 
 ## Compre the results of: glmmTMB to glm.  The estimates are virtually identical but the Std. Errors are much smaller for glmmTMB.
 ### PLOTS/RESULTS WITH AND WITHOUT DISPERSION FOR THE GLMMTMB.  
-btp.glmm2 <- glmmTMB(Biomass_100~Time + (1|Year), 
-                    family = Gamma(link=log),
-                    REML = TRUE,
-                    data=bt.pl)
+btp.glmm2 <- glmmTMB(
+  Biomass_100~Time + (1|Year), 
+      family = Gamma(link=log),
+      REML = TRUE,
+    data=bt.pl)
 summary(btp.glmm2)
 
 anova(btp.glmm1, btp.glmm2) # this suggests that model btp.glmm2 is slightly better than btp.glmm1, i.e., without dispersion 
@@ -920,7 +922,7 @@ testTemporalAutocorrelation(btyoyp.glmm1_new_simres_recalc, time = unique(btyoy.
 # testSpatialAutocorrelation(btyoyp.glmm1_simres_recalcSpace, x = coords.pl$X, y = coords.pl$Y)
 # 
 summary(btyoyp.glmm1_new) # go with this
-summary(btyoyp.glmm0) # temp resids aren't great
+#summary(btyoyp.glmm0) # temp resids aren't great
 mean_by_site(btyoy.pl.biomass.station, "yes", "d")
 
 
@@ -1002,7 +1004,7 @@ btyoyl.glmm1_new_simres_recalc <- recalculateResiduals(btyoyl.glmm1_new_simres, 
 testTemporalAutocorrelation(btyoyl.glmm1_new_simres_recalc, time = unique(bt.lu$Year))
 
 # these are much better - proceed with this model
-summary(btyoyl.glmm1_new)
+summary(btyoyl.glmm1_new) # temp resids aren't great - but driven by C3
 mean_by_site(btyoy.lu.biomass.station, "lunker", "d")
 
 
@@ -1035,7 +1037,7 @@ mean_by_site(btyoy.lu.biomass.station, "lunker", "d")
 #### Use Tweedie instead
 
 asp.glmm1 <- glmmTMB(
-  #Biomass_100 ~ Time + (1 | Year),
+  Biomass_100 ~ Time + (1 | Year),
   #dispformula = ~ Time,  # doesn't converge
   family = ziGamma(link = "log"),
   ziformula = ~1,
@@ -1109,13 +1111,13 @@ summary(asp.glmm2_new)
 asp.glmm3 <- glmmTMB(
   Biomass_100 ~ Time + (1 | Year),
   #Biomass_100 ~ Time + numYear + (1 | Year), # bad heterogeneity
-  dispformula = ~ Time,
-  family = ziGamma(link = "log"),
-  ziformula = ~1,
-  REML = TRUE,
-  control = glmmTMBControl(
-    optimizer = optim,
-    optArgs=list(method = "BFGS")),
+    dispformula = ~ Time,
+    family = ziGamma(link = "log"),
+    ziformula = ~1,
+    REML = TRUE,
+    control = glmmTMBControl(
+      optimizer = optim,
+      optArgs=list(method = "BFGS")),
   data = as.pl
 )
 summary(asp.glmm3)
@@ -1234,7 +1236,8 @@ asyoyp.glmm1 <- glmmTMB(
 summary(asyoyp.glmm1)
 
 asyoyp.glmm2 <- glmmTMB(
-  Biomass_100 ~ Time + (1 | Year),
+  #Biomass_100 ~ Time + (1 | Year), # this was better than asyoyp.glmm1 but temporal issues. 
+  Biomass_100 ~ Time + numYear + (1 | Year), # this model has good diagnostics
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
   data = asyoy.pl
@@ -1276,9 +1279,11 @@ testTemporalAutocorrelation(asyoyp.glmm2_simres_recalc, time = unique(asyoy.pl$Y
 
 # spatial autocorrelation is OK but other diagnostics aren't great.  
 ### Tried using year as a covariate but it didn't help. P-value far from alpha so proceed with 
-summary(asyoyp.glmm1)
+summary(asyoyp.glmm2)
 mean_by_site(asyoy.pl.biomass.station, "yes", "d")
 baci.plot(asyoy.pl.biomass.baci, "b")
+
+
 
 ### LUNKERS ----
 
