@@ -55,6 +55,7 @@ Column
 ### Density
 
 ```{r}
+# created in mean_stderrors_andplots_KL.R and from glmm_anova.R
 knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_density.png")
 ```
 
@@ -144,6 +145,7 @@ Column {data-width=350}
 -------------------------------------
 ### BT
 ```{r}
+# from glmm_anova.R
 knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_LU_density.png")
 ```
 
@@ -338,12 +340,11 @@ Column
 
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
-btyoy.glmm4_new1 <- glmmTMB(
-  Biomass_100 ~ Time*Treatment + Treatment*I(as.numeric(Year)^2) + (1 | Year),
-  #  Biomass_100 ~ Time + Treatment + Treatment*I(as.numeric(Year)^2) + (1 | Year),
-  dispformula = ~ Int,
-  family = tweedie, # link is log
-  REML = TRUE,
+btyoy.glmm4_new <- glmmTMB(
+  Biomass_100 ~ Time * Treatment + numYear + (1 | Year),
+    dispformula = ~ Int,
+    family = tweedie, # link is log
+    REML = TRUE,
   data = btyoy.np
 )
 
@@ -352,7 +353,7 @@ btyoy.glmm4_new1 <- glmmTMB(
 
 <div style="height: 400px; overflow-y: scroll;">
 ```{r}
-summary(btyoy.glmm4_new1)
+summary(btyoy.glmm4_new)
 ```
 </div>
 
@@ -377,12 +378,10 @@ Column
 ```{r, eval=T,prompt=T, echo = F, comment = F}
 as.glmm3 <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
-  family = tweedie, # link is log
-  REML = TRUE,
+    family = tweedie, # link is log
+    REML = TRUE,
   data = as.np
 )
-
-# summary(bt.glmm1)
 ```
 
 <div style="height: 400px; overflow-y: scroll;">
@@ -412,9 +411,9 @@ Column
 ```{r, eval=T,prompt=T, echo = F, comment = F}
 asyoy.glmm2 <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
-  family = ziGamma(link = "log"),
-  ziformula = ~1,
-  REML = TRUE,
+    family = ziGamma(link = "log"),
+    ziformula = ~1,
+    REML = TRUE,
   data = asyoy.np
 )
 
@@ -448,12 +447,11 @@ Column
 
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
-btp.glmm2 <- glmmTMB(Biomass_100~Time + (1|Year), 
-                    family = Gamma(link=log),
-                    REML = TRUE,
-                    data=bt.pl)
-
-# summary(bt.glmm1)
+btp.glmm2 <- glmmTMB(
+  Biomass_100~Time + (1|Year), 
+      family = Gamma(link=log),
+      REML = TRUE,
+    data=bt.pl)
 ```
 
 <div style="height: 800px; overflow-y: scroll;">
@@ -529,15 +527,15 @@ Column
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
 btyoyp.glmm1_new <- glmmTMB(
-  #Biomass_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
-  Biomass_100 ~ Time + as.numeric(Year) + (1 | Year),
-  dispformula = ~ Time,
-  family = tweedie,
-  REML = TRUE,
+  Biomass_100 ~ Time + numYear + (1 | Year),
+    dispformula = ~ Time,
+    family = tweedie,
+    REML = TRUE,
+     control = glmmTMBControl(  # gives NAs
+       optimizer = optim, 
+       optArgs=list(method = "BFGS")),
   data = btyoy.pl
 )
-
-# summary(bt.glmm1)
 ```
 
 <div style="height: 400px; overflow-y: scroll;">
@@ -565,20 +563,22 @@ Column
 
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
-asp.glmm2 <- glmmTMB(
+asp.glmm3 <- glmmTMB(
   Biomass_100 ~ Time + (1 | Year),
-#  dispformula = ~ Time, # produces NaN in std errors and 
-  family = tweedie,
-  REML = TRUE,
+    dispformula = ~ Time,
+    family = ziGamma(link = "log"),
+    ziformula = ~1,
+    REML = TRUE,
+    control = glmmTMBControl(
+      optimizer = optim,
+      optArgs=list(method = "BFGS")),
   data = as.pl
 )
-
-# summary(bt.glmm1)
 ```
 
 <div style="height: 400px; overflow-y: scroll;">
 ```{r}
-summary(asp.glmm2)
+summary(asp.glmm3)
 ```
 </div>
 
@@ -602,14 +602,12 @@ Column
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
 asyoyp.glmm1 <- glmmTMB(
-  Biomass_100 ~ Time + (1 | Year),
+  Biomass_100 ~ Time + + numYear + (1 | Year),
   dispformula = ~ Time,
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
   data = asyoy.pl
 )
-
-# summary(bt.glmm1)
 ```
 
 <div style="height: 400px; overflow-y: scroll;">
@@ -706,6 +704,7 @@ Column {data-width=350}
 -------------------------------------
 ### Density - Riffle
 ```{r}
+# from glmm_density_models.R
 knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTdensity.png")
 ```
 
@@ -719,6 +718,7 @@ Column {data-width=350}
 -------------------------------------
 ### Biomass - Riffle
 ```{r}
+# from glmm_biomss_models.R
 knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTbiomass.png")
 ```
 
