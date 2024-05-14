@@ -601,9 +601,9 @@ Column
 
 ### GLMM analysis
 ```{r, eval=T,prompt=T, echo = F, comment = F}
-asyoyp.glmm1 <- glmmTMB(
-  Biomass_100 ~ Time + + numYear + (1 | Year),
-  dispformula = ~ Time,
+asyoyp.glmm2 <- glmmTMB(
+  #Biomass_100 ~ Time + (1 | Year), # this was better than asyoyp.glmm1 but temporal issues. 
+  Biomass_100 ~ Time + numYear + (1 | Year), # this model has good diagnostics
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
   data = asyoy.pl
@@ -612,7 +612,7 @@ asyoyp.glmm1 <- glmmTMB(
 
 <div style="height: 400px; overflow-y: scroll;">
 ```{r}
-summary(asyoyp.glmm1)
+summary(asyoyp.glmm2)
 ```
 </div>
 
