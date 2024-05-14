@@ -91,6 +91,10 @@ Basically, GLM can't handle random effects (for repeated measures - the way it w
 
 Note that GLMMs (in glmmTMB) have four components, the conditional model, the distribution, the zero inflation model, and the dispersion formula.  The conditional model will be either a BACI or one-way ANOVA type as appropriate for these data.  The distribution will be Gamma (but this can't handle zeros), a Gamma hurdle model, or Tweedie.  See below for discussion of zeros and the dispersion formula.  
 
+## Random  
+At some point, I decided not to do repeated measures on Year rather than Station.  I cannot recall teh rationale but it does seem to make a difference.  **need to think this through**
+
+
 ## Zuur's approach (2009) pg 
 - Fit a "beyond" optimal fixed effects model (over fit the model?)  
 - Using this model, find the optimal random component - compare using REML (see below)  
@@ -164,7 +168,7 @@ INT is for Interaction, not intercept.  dispformula ~ Int is therefore to accoun
 
 Note: The conditional model fits the mean, the dispersion models the variance via a log-link(see help("glmmTMB")). https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb  
 
-Note that I do not really understand the impact that this has on model outputs, especially fitted values.  I can reconstruct fitted values for a lm, glm, and glmm but not for zero inflated (hurdle) or dispersion.  Remember that mixed models have an additional term while zero-inflated(hurdle) have an extra equation to model the zeros v non-zero values - again, not sure how this plays into calculating the fitted values.  For dispersion, I assume that its just bringing in another term in the main model but not sure.
+Note that I do not really understand the impact that this has on model outputs, especially fitted values.  I can reconstruct fitted values for a lm, glm, and glmm and for zero-inflated (hurdle) (see glmm_density.R or glmm_biomass.R - basically, fitted values = exp(fixed + random effects) x 1/1+exp(coefficients$zi) where fitted are coeffcients x design matrix) but not for  dispersion.  Remember that mixed models have an additional term while zero-inflated(hurdle) have an extra equation to model the zeros v non-zero values - again.  For dispersion, I assume that its just bringing in another term in the main model and it affects the variance - perhaps the impact is on confidence intervals but this requires matrix multiplication (see scratch_pad_glm.R) for mixed effects.
 
 # Diagnostics
 I have spent a great deal of time looking at the diagnostics and for some tests, I can't get a model that doesn't violate at least some of the assumptions at least a bit.  Sometimes, the model won't converge if I make it too complicated.  In other cases, fixing one diagnostic makes causes other diagnostics to go bad.  I talked to Krista Baker and her suggestion was to document what was done and present the results.  If there were diagnostics that were violated, then you did your best and just need to temper the interpreations accordingly.   
