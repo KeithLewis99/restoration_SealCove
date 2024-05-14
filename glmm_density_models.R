@@ -380,7 +380,7 @@ spatialAutoCorrGG_fun(btyoy.np.density.all)
 
 # Can't get this one to look good - use btyoy.glmm4_optim as this at least fixes the temporal resids.
 summary(btyoy.glmm4_optim)   
-mean_by_site(btyoy.np.biomass.station, "no", "d")
+mean_by_site(btyoy.np.density.station, "no", "d")
 baci.plot(btyoy.np.density.baci, "d")
 
 # tmp <- summary(btyoy.glmm4_optim)
@@ -567,6 +567,7 @@ baci.plot(as.np.density.baci, "d")
 
 
 
+
 # ASYOY ----
 ## resids in Cote analysis aren't bad but can we improve them?
 # ASYOY1_den.glm.not.pool.full <- glm(mean~Time*Treatment, family=Gamma(link=log), data= ASYOYdensitybyhabitat.not.pool)
@@ -685,6 +686,40 @@ spatialAutoCorrGG_fun(asyoy.np.density.all)
 summary(asyoy_den.glmm1)
 mean_by_site(asyoy.np.density.station, "no", "d")
 baci.plot(asyoy.np.density.baci, "d")
+
+asyoy.np[asyoy.np$Station_new == "D2",]
+asyoy_den.glmm1_sum <- summary(asyoy_den.glmm1)
+asyoy_den.glmm1_ran <- ranef(asyoy_den.glmm1)
+asyoy_den.glmm1_fit <- fitted(asyoy.glmm2, se.fit = T)
+
+# this does not match the fitted values but the dispersion formula may have something to do with that. 
+exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] + 
+      asyoy_den.glmm1_sum$coefficients$cond[2,1] + 
+      asyoy_den.glmm1_sum$coefficients$cond[3,1] + 
+      asyoy_den.glmm1_sum$coefficients$cond[4,1] + 
+      asyoy_den.glmm1_ran$cond$Year[1,]) *
+  1/(1 + exp(asyoy_den.glmm1_sum$coefficients$zi[1,1]))
+asyoy.np[1:10, c(1:2, 5:6, 10:13, 17)]
+asyoy_den.glmm1_fit[1]
+
+temp <- asyoy.np |>
+  filter(Time == "Before") |>
+  group_by(Station_new) |>
+    summarise(mean = mean(Density_100))
+
+temp1 <- asyoy.np |>
+  filter(Time == "Before") |>
+  group_by(Treatment) |>
+  summarise(mean = mean(Density_100))
+
+
+# https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb
+disp <- exp(sqrt(asyoy_den.glmm1_sum$coefficients$disp[1,1] +
+              asyoy_den.glmm1_sum$coefficients$disp[2,1] +
+              asyoy_den.glmm1_sum$coefficients$disp[3,1] +
+              asyoy_den.glmm1_sum$coefficients$disp[4,1]))
+ disp
+sqrt(disp)
 
 
 # POOLS ----

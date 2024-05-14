@@ -69,7 +69,8 @@ library(cowplot)
 ### Need glmmTMB to have random effects and a non-normal distribution
 #### Gamma is OK here because there are no zeros
 bt.glmm1 <- glmmTMB(
-  Biomass_100 ~ Time * Treatment + (1 | Year),
+#  Biomass_100 ~ Time * Treatment + (1 | Year),
+  Biomass_100 ~ Time * Treatment + (1 | Station_new),
   dispformula = ~ Int,
   family = Gamma(link = log),
   REML = TRUE,
@@ -122,27 +123,46 @@ testSpatialAutocorrelation(bt.glmm1_simres_recalcSpace, x = unique(bt.np$X), y =
 
 spatialAutoCorrBase_fun(bt.np, bt.glmm1_simres_recalcSpace)   
 
-bt.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], bt.glmm1_simres_recalcSpace, coords.np)
+bt.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], 
+          bt.glmm1_simres_recalcSpace, coords.np)
 
 spatialAutoCorrGG_fun(bt.np.biomass.all)
 
 
-
 # Diagnostics look fantastic for this model.  Proceed with this model (bt.glmm1).  See glmm_anova for above but without REML which will allow for the BACI.
+
+
 summary(bt.glmm1)
 mean_by_site(bt.np.biomass.station, "no", "b")
 baci.plot(bt.np.biomass.baci, "b")
 
+bt.np[bt.np$Station_new == "D2",]
+bt.glmm1_sum <- summary(bt.glmm1)
+bt.glmm1_fit <- fitted(bt.glmm1, se.fit = T)
+bt.glmm1_ran <- ranef(bt.glmm1)
+bt.glmm1_res <- residuals(bt.glmm1)
 
 
+
+## in this case, zi is applied equally to all observations.
+exp(bt.glmm1_sum$coefficients$cond[1,1] + 
+      bt.glmm1_sum$coefficients$cond[2,1] +
+      bt.glmm1_sum$coefficients$cond[3,1] +
+      bt.glmm1_sum$coefficients$cond[4,1] +
+      bt.glmm1_ran$cond$Year[1,])
+bt.glmm1_fit[1]
 
 # BTYOY ----
 ## Cote approach
+
 # BTYOY1.glm.not.pool.full <- glm(mean~Time*Treatment, family=Gamma(link=log), data = BTYOYbio100byhabitat.not.pool)
+
 # summary(BTYOY1.glm.not.pool.full)
+
 # par(mfrow=c(2,2))
 # plot(BTYOY1.glm.not.pool.full)
 # graphics.off() #resids are awful
+
 # 
 # 
 # # examine distribution and check for zeros
@@ -187,7 +207,6 @@ baci.plot(bt.np.biomass.baci, "b")
 # plot(btyoy.lme1)
 # # heterogeneity looks reasonable although a few low variance at low fitted values and some curving in the middle.  Could stop here but sample sizes are small.
 
-
 ## glmm -----
 ### with biomass adjustment - just running this to see if it makes much difference as it isn't "right"
 # btyoy.glmm1 <- glmmTMB(
@@ -203,6 +222,7 @@ baci.plot(bt.np.biomass.baci, "b")
 # 
 # 
 # ## Compre the results of:
+
 # ### glmmTMB to glm.  The estimates are virtually identical but the Std. Errors are much smaller for glmmTMB.
 # ### PLOTS/RESULTS WITH AND WITHOUT DISPERSION FOR THE GLMMTMB.  
 # btyoy.glmm2 <- glmmTMB(Biomass_100~Time*Treatment + (1|Year), 
@@ -212,15 +232,18 @@ baci.plot(bt.np.biomass.baci, "b")
 #                  data=btyoy.np.001)
 # summary(btyoy.glmm2)
 # # str(btyoy.glmm2)
+
 # anova(btyoy.glmm1, btyoy.glmm2) # this suggests that model with dispersion is quite a bit better than the model without.
+
+
 # ## The estimates are virtually identical but the Std. Errors differ and could affect inferences.  
 
-
 ## alt distributions ----
+
 ### I did zi gamma and tweadie before I did the hurdle.  But it seems like hurdle models are most appropriate. 
 
-
 ### hurdle gamma with dispersion
+
 btyoy.glmm3 <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
   #Biomass_100 ~ Time * Treatment + numYear + (1 | Year), # bad diagnostics
@@ -230,9 +253,11 @@ btyoy.glmm3 <- glmmTMB(
   REML = TRUE,
   data = btyoy.np
 )
+
 summary(btyoy.glmm3)
 
 ### hurdle gamma without dispersion
+
 btyoy.glmm3a <- glmmTMB(
   Biomass_100 ~ Time * Treatment + (1 | Year),
   family=ziGamma(link="log"), ziformula = ~1,
@@ -255,49 +280,60 @@ btyoy.glmm4 <- glmmTMB(
   REML = TRUE,
   data = btyoy.np
 )
+
 summary(btyoy.glmm4)
 anova(btyoy.glmm3, btyoy.glmm4) # tweadie looks somewhat better (btyoy.glmm4) - proceed to check diagnostics
-
 
 ## diagnostics ----
 # simulate resids
 btyoy.glmm4_simres <- simulateResiduals(btyoy.glmm3)
 plot(btyoy.glmm4_simres)
-# The normality and homogeneity of variance look great.  
 
+# The normality and homogeneity of variance look great.  
 # test zero inflation which looks fine.
 testZeroInflation(btyoy.glmm4_simres)
-
 
 # temporal independence
 ## Because this is a nested model with multiple measurements by Year, we can't just do the below. Rather, we need to recalculate them with Year as a grouping variable
 btyoy.glmm4_simres_recalc <- recalculateResiduals(btyoy.glmm4_simres, group = btyoy.np$Year)
+
 testTemporalAutocorrelation(btyoy.glmm4_simres_recalc, time = unique(btyoy.np$Year))
+
 # resids look great for autocorrelation - one could argue some temproal trends but the years are well spaced and this is likely spurious
 
 # but rethinking this, the trend does look curvilinear and maybe later years are a problem
 
 # I did try to fix the patterns using a correlation structure but I think that ar1 is inappropriate because times are not even and we just don't have the data - all models fail to converge.
+
 ## Good website on model syntax https://stats.stackexchange.com/questions/477338/reading-multilevel-model-syntax-in-intuitive-ways-in-r-lme4
+
 # btyoy.glmm5 <- glmmTMB(
+
 #   Biomass_100 ~ Time * Treatment + (1 | Year) + us(Station_new + 0 | Year),
 #   #dispformula = ~ Int,
 #   family = tweedie, # link is log
 #   REML = TRUE,
 #   data = btyoy.np
 # )
+
 # btyoy.glmm5
-
-
 # spatial independence
+
 ## Need UTMs of the sites.  However, the unique stations are confusing. 
+
 # recalculate resids with stations as the grouping variable
+
 # btyoy.glmm4_simres_recalcSpace <- recalculateResiduals(btyoy.glmm4_simres, group = as.factor(bt.np$Station_new))
+
 # unique(btyoy.np$Station_new) # OK - there are only 13 values in this because this is no pools and there are 4 pools + 1 destroyed pool so 18-5=13.
+
 # #str(bt.glmm1_simres_recalcSpace)
-# 
+
+
 # testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace, x = coords.np$X, y = coords.np$Y)
+
 # testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
+
 # # Diagnostics look fantastic for this model.  Proceed with this model - btyoy.glmm4.  See glmm_anova for above but without REML which will allow for the BACI.
 # # In retrospect, I disagree.  Temporal trend and spatial issues.
 # summary(btyoy.glmm4)
@@ -380,7 +416,7 @@ btyoy.glmm4_simres_recalcSpace1 <- recalculateResiduals(btyoy.glmm4_new_simres1,
 testSpatialAutocorrelation(btyoy.glmm4_simres_recalcSpace1, x = unique(btyoy.np$X), y = unique(btyoy.np$Y))
 
 spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_simres_recalcSpace1)  
-btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_simres_recalcSpace, coords.np)
+btyoy.np.biomass.all <- spatialData_join(bt.np.biomass.station[-4,], btyoy.glmm4_simres_recalcSpace1, coords.np)
 
 spatialAutoCorrGG_fun(btyoy.np.biomass.all)
 # Spatials aren't great but Moran's I is not sig.  so with
@@ -643,7 +679,57 @@ summary(asyoy.glmm2)
 ###  OK, I finally feel that this is defensible - so stop obsessing and move on!
 mean_by_site(asyoy.np.biomass.station, "no", "b")
 baci.plot(asyoy.np.biomass.baci, "b")
+fitted(asyoy.glmm2, se.fit = T)
+ranef(asyoy.glmm2)
+residuals(asyoy.glmm2)
 
+
+
+asyoy.np[asyoy.np$Station_new == "D2",]
+asyoy.glmm2_sum <- summary(asyoy.glmm2)
+asyoy.glmm2_fit <- fitted(asyoy.glmm2, se.fit = T)
+asyoy.glmm2_ran <- ranef(asyoy.glmm2)
+asyoy.glmm2_res <- residuals(asyoy.glmm2)
+asyoy.glmm2_sum$coefficients$zi[1,1]
+exp(asyoy.glmm2_sum$coefficients$zi[1,1])/(1+exp(asyoy.glmm2_sum$coefficients$zi[1,1])) # this gives the same as plogis but plogis may not be right
+plogis(asyoy.glmm2_sum$coefficients$zi[1,1]) 
+# this converts from logit back to probability but we want q, not p
+plogis(1-asyoy.glmm2_sum$coefficients$zi[1,1])
+
+
+# this actually seems to work - matches last value 
+## https://discourse.mc-stan.org/t/mathematical-notation-for-a-zero-inflated-negative-binomial-model-in-brms/21066/13
+## https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
+
+# 1/(1 + exp(zi)) = q or event of a zero
+# exp(zi) = p or the probablitly its not a zero or 1-q
+## in this case, zi is applied equally to all observations.
+exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
+      asyoy.glmm2_ran$cond$Year[11,]) * # year 11, i.e., 2016
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
+asyoy.glmm2_fit[96]
+
+# this works too - matches first value (year 1)
+exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
+       asyoy.glmm2_sum$coefficients$cond[2,1] + 
+       asyoy.glmm2_sum$coefficients$cond[3,1] + 
+       asyoy.glmm2_sum$coefficients$cond[4,1] + 
+      asyoy.glmm2_ran$cond$Year[1,]) *
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1])) 
+asyoy.glmm2_fit[1]
+
+# first zero value D15 in 1991 (Year 4) Control - After - this matches 
+exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
+      asyoy.glmm2_ran$cond$Year[4,]) *
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
+asyoy.glmm2_fit[15]
+asyoy.glmm2_res[15] # so not a good fit but the resid is large and gets it to the actual value which is zero
 
 # **POOLS ----
 # **POOLS ----
@@ -1282,6 +1368,48 @@ testTemporalAutocorrelation(asyoyp.glmm2_simres_recalc, time = unique(asyoy.pl$Y
 summary(asyoyp.glmm2)
 mean_by_site(asyoy.pl.biomass.station, "yes", "d")
 baci.plot(asyoy.pl.biomass.baci, "b")
+
+
+asyoy.pl[asyoy.pl$Station_new == "D1",]
+asyoyp.glmm2_sum <- summary(asyoyp.glmm2)
+asyoyp.glmm2_fit <- fitted(asyoyp.glmm2, se.fit = T)
+asyoyp.glmm2_ran <- ranef(asyoyp.glmm2)
+asyoyp.glmm2_res <- residuals(asyoyp.glmm2)
+asyoyp.glmm2_sum$coefficients$zi[1,1]
+
+
+# this actually seems to work - matches last value 
+## https://discourse.mc-stan.org/t/mathematical-notation-for-a-zero-inflated-negative-binomial-model-in-brms/21066/13
+## https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
+
+# 1/(1 + exp(zi)) = q or event of a zero
+# exp(zi) = p or the probablitly its not a zero or 1-q
+## in this case, zi is applied equally to all observations.
+exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
+      asyoy.glmm2_ran$cond$Year[11,]) *
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
+asyoy.glmm2_fit[96]
+
+# this works too - matches first value
+exp(asyoyp.glmm2_sum$coefficients$cond[1,1] + 
+      asyoyp.glmm2_sum$coefficients$cond[2,1] + 
+      asyoyp.glmm2_sum$coefficients$cond[3,1]*1988 + 
+      asyoyp.glmm2_ran$cond$Year[1,]) *
+  1/(1 + exp(asyoyp.glmm2_sum$coefficients$zi[1,1])) 
+asyoyp.glmm2_fit[1]
+
+# first zero value D15 in 1991 Control - After - this matches 
+exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
+      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
+      asyoy.glmm2_ran$cond$Year[4,]) *
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
+asyoy.glmm2_fit[15]
+asyoy.glmm2_res[15] # so not a good fit but the resid is large and gets it to the actual value which is zero
 
 
 
