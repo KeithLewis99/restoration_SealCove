@@ -729,7 +729,19 @@ knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kr
 ```
 
 
+
 # Notes
+
+Column 
+-------------------------------------
+
+```{r}
+knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BACI_params.png")
+```
+
+
+Column 
+-------------------------------------
 
 On GLMM analysis, intercept = lower right; int + TRT = upper right, int + Time = lower left, int + Time + Trt + interaction = upper left.  Remember these are on log scale so transform back with Euler's number (e^x).
 
