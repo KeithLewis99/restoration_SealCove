@@ -481,3 +481,134 @@ plot_grid(plot_grid(p15, bottom_row, labels=c("", ""), nrow = 2), scale=0.9) +
   #draw_label("Mean biomass estimate (g/100 sq. m)", x=  0, y=0.5, vjust= 1.5, angle=90) +
   draw_label("Density (# fish/100 sq. m)", x=  0.03, y=0.5, vjust= 1.5, angle=90)
 ggsave(paste0("output/ASYOY_density.png"), width=10, height=8, units="in")
+
+
+# BACI graphs ----
+# interpreation of parameters on BACI design
+
+# data
+y <- c(0, 10)
+#y <- seq(0, 10, 0.1)
+x <- seq(1, 2)
+x1 <- c("Before", "After")
+
+# labels for lines
+a <- "Control"
+#b <- "Control-After"
+c <- "Impact"
+#d <- "Impact-Before"
+
+# labels for parameters
+e <- "Intercept"
+f <- "Intercept + \n Time"
+g <- "Intercept + \n Treatment"
+h <- "Intercept + Time \n + Treatment*Time"
+
+# plot
+png("output/BACI_params.png", family = "Arial Black")
+# par(mar = c(2, 2, 1, 1))  # set margins(bottom,left,top,right)
+plot(x, y, type='n', 
+     xaxt = 'n', yaxt = 'n', 
+     xlim = c(0.8,2.5), ylim = c(0, 10),
+     xlab = '', ylab = 'Density/Biomass')
+axis(1, at = c(1, 2), labels = x1, col = "#0000ff00", col.ticks = "black")
+
+# lines representing a difference between Treatments but not time
+arrows(1, 2, 2, 2, length = 0.1, angle = 20, 
+       code = 0, col = "blue", lwd = 3)
+arrows(1, 8, 2, 8, length = 0.1, angle = 20, 
+       code = 0, col = "red", lwd = 3)
+
+# label lines
+text(1.5, 1.6, a, col = "blue", adj = 0.5, 
+     cex = 1)
+text(1.5, 7.6, c, col = "red", adj = 0.5, 
+     cex = 1)
+# text(1, 2, b, col = "blue", adj = 0.5, 
+#      cex = 1)
+# text(1, 8, d, col = "red", adj = 0.5, 
+#      cex = 1)
+
+# parameters
+text(2.2, 2.5, e, col = "black", adj = 0.5, 
+     cex = 0.8)
+text(2.2, 8.5, g, col = "black", adj = 0.5, 
+     cex = 0.8)
+text(1, 2.7, f, col = "black", adj = 0.5, 
+     cex = 0.8)
+text(1, 8.7, h, col = "black", adj = 0.5, 
+     cex = 0.8)
+dev.off()
+
+
+
+# year <- c(1, 2, 3, 4)
+# month <- c(1:12)
+# month_seq <- c(1:48)
+# 
+# year <- sort(rep(year, 12))
+# month <- rep(month, 4)
+# 
+# x <- as.data.frame(cbind(year, month, month_seq))
+# x <- x[1:36, ]
+# lab_1 <- rep(c("Dec", "Mar", "Jun", "Sep"), 4)
+# lab_2 <- lab_1[1:13]
+
+
+# png("presentation/variables_plus_fish.png", family = "Arial Black")
+# setwd("D:/Keith/capelin/2017-project")
+# pdf("presentation/variables_plus_fish.pdf", family = "Arial Black")
+# par(mar = c(2, 2, 1, 1))  # set margins(bottom,left,top,right)
+# 
+# plot(x$month_seq, x$year, type='n', xaxt = 'n', yaxt = 'n', xlab = 'Month', ylab = '')
+# axis(1, at = seq(1, 37, 3), labels = lab_2, col = "#0000ff00", col.ticks = "black")
+# 
+# #year(t-2)
+# arrows(1, 2.5, 12, 2.5, length = 0.1, angle = 20, 
+#        code = 3, col = "blue", lwd = 3)
+# text(4, 2.7, "year(t-2)", col = "blue", adj = 0.5, 
+#      cex = 1.5)
+# #larval emergence
+# text(9, 2.2, "larval \n emergence", col = "blue", adj = 0.5,      cex = 1.5)
+# arrows(8, 2.3, 9.5, 2.3, length = 0, angle = 20, 
+#        code = 3, col = "blue", lwd = 3)
+# #Pseudo
+# text(10, 1.9, bquote(atop(italic("Pseudocalanus"), "emergence")), col = "blue", adj = 0.5, cex = 1.5)
+# arrows(7, 2.025, 11, 2.025, length = 0, angle = 20, 
+#        code = 3, col = "blue", lwd = 3)
+# 
+# #year(t-1)
+# arrows(12, 2.5, 24, 2.5, length = 0.1, angle = 20, 
+#        code = 3, col = "red", lwd = 3)
+# text(14, 2.7, "year(t-1)", col = "red", adj = 0.5, 
+#      cex = 1.5)
+# text(23, 2.15, "condition", col = "red", adj = 0.5, 
+#      cex = 1.5)
+# arrows(21, 2.2, 24, 2.2, length = 0, angle = 20, 
+#        code = 3, col = "red", lwd = 3)
+# 
+# #year(t)
+# arrows(24, 2.5, 36, 2.5, length = 0.1, angle = 20, 
+#        code = 3, col = "black", lwd = 3)
+# text(26, 2.7, "year(t)", col = "black", adj = 0.5, 
+#      cex = 1.5)
+# #tice
+# text(27, 2.35, expression("t"[italic(ice)]), col = "black", adj = 0.5, 
+#      cex = 1.5)
+# arrows(25, 2.4, 28, 2.4, length = 0, angle = 20, 
+#        code = 3, col = "black", lwd = 3)
+# #spring survey
+# text(30, 1.80, "spring \n survey", col = "black", adj = 0.5, 
+#      cex = 1.5)
+# arrows(29, 1.90, 30, 1.90, length = 0, angle = 20, 
+#        code = 3, col = "black", lwd = 3)
+# #management meetings
+# text(30, 1.5, "management \n meetings", col = "black", adj = 0.5, cex = 1.5)
+# arrows(28, 1.6, 28.5, 1.6, length = 0, angle = 20, 
+#        code = 3, col = "black", lwd = 3)
+# #fishery
+# text(32, 1.225, "fishery", col = "black", cex = 1.55)
+# arrows(31, 1.3, 33, 1.3, length = 0, angle = 20, 
+#        code = 3, col = "black", lwd = 3)
+# dev.off()
+
