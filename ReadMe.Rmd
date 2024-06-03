@@ -91,8 +91,51 @@ Basically, GLM can't handle random effects (for repeated measures - the way it w
 
 Note that GLMMs (in glmmTMB) have four components, the conditional model, the distribution, the zero inflation model, and the dispersion formula.  The conditional model will be either a BACI or one-way ANOVA type as appropriate for these data.  The distribution will be Gamma (but this can't handle zeros), a Gamma hurdle model, or Tweedie.  See below for discussion of zeros and the dispersion formula.  
 
-## Random  
-At some point, I decided not to do repeated measures on Year rather than Station.  I cannot recall teh rationale but it does seem to make a difference.  **need to think this through**
+## Random effects
+
+**See notebook, date 2024-05-23**  
+
+At some point, I decided to do repeated measures on Year rather than Station.  I cannot recall the rationale but it does seem to make a difference.  So, I spent the better part of 3 days thinking about this and it recalls the hell of PhD days trying to figure this out for Chapter 4 (see Crossed vs Nested).
+
+Remember: nested and crossed are aspects of the study design and affect the model structure while fixed and random are variable specific and are chosen as such by the researcher (whether the researcher has done so correctly or can justify it is another matter).
+
+So, the good news is that glmmTMB is a reasonable package to use for BACI, e.g. Rasswiler2021 - Ecol Appl (code on Github  - https://github.com/dkokamoto/Ecol_Apps_BACI/blob/v0.3.1-alpha/Code/Functions.R.  Note that they have site and Id as random effects and do an autoregressive approach - ar1(time+0|Site). Wolfram 2018 also uses Site and Year.  There is also some flexibility in the approach - see Loughlin 2021 CJFAS who use mix models) who clearly explain their rationale for developing the model and choosing which terms are random and fixed.
+
+I also found epower which is a Bayesian approach to power analysis for BACIs and has the clearest, most cogent outline of the nesting.
+
+The bad news, is that this is a tough one because we don't have unlimited data and this is a "partial" nested, i.e., D1 and D2 were destroyed and C1-C9 are all in the after because they were created while D15 and D16 were added as afterthoughts.  The only fully crossed sites are C10-C12.  
+
+Ruminations:  
+Repeated measures on the observational unit equates to nesting, i.e., the unit is nested within a factor.  In the case of SC, the observational unit is the experimental unit, i.e., the station.  But station is not crossed with year.  Year applies to every station but not every station applies to a year, ergo, station is nested within year.  However, this applies to Treatment and Time too.  1988-1989 are only in Before.  Note: I don't think this is true.  Repeated measures can be in a crossed design with subjects, repeatedly measured, assigned to the various experimental units.  Also, see Crossed vs. Nested below.
+
+Still not clear why a random effect equates to repeated measures , e.g., (1|Year) is supposedly the way to account for repeated measures but its also the code for random effect.  So, is repeated measures really just a random-intercept model?? - Yes, I think that this is right and its because of the CV matrix - check that this is right in Zuur.  Answer: I think its because repeated measures tries to account for variation within-subject since these repeated measures aren't replicates and shouldn't be treated as such (classic psuedo replication).  A random intercept effectively is the same thing - the intercept varies for each level of the random factor which removes this variation (**The other way to deal with non-independence of a subject’s residuals is to leave the residuals alone, but actually alter the model by controlling for subject.  When you control for subject as a factor in the model, you literally redefine what a residual is.  Instead of being the distance between a data point and the average for everyone, it’s the distance between a data point and the mean for that subject.** https://www.theanalysisfactor.com/repeated-and-random-2/).  Mixed models are obviously much more flexible because you can do random slopes and random intercepts/slopes.  
+
+My thought is that I could nest things or just have site as a repeated measure within year?
+Can't nest Year/Time and Station/Treatment due to degrees of freedom issues
+
+See scratch_pad_rdmEffects - basically, I tried a whole bunch of nested random and nested random and straight random approaches.  The problem is that the more of these you stick in, the less variance to go around and things aren't significant.  
+
+Websites:
+Code and rationale for adding Year and Station as random effects and either interaction or nesting.
+https://stackoverflow.com/questions/63360751/specifying-random-effects-for-repeated-measures-in-logistic-mixed-model-in-r-lm
+
+For how to code nested v crossed effects: https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified
+
+Same variable in fixed and random component with justification plus ruminations on nested.
+https://stats.stackexchange.com/questions/398444/how-to-correctly-model-repeated-measures-random-effects-in-a-linear-mixed-effect
+
+Bolker says you can use a variable as fixed and random
+https://stats.stackexchange.com/questions/235199/how-to-build-a-generalized-linear-mixed-model-with-repeated-measures-in-r
+
+## Crossed vs Nested  
+From Bolker_14-Fox-Chap13.pdf:
+What about the interaction between two random effects? Here we have to specify whether the two effects are nested or crossed. If at least one of the levels of each effect is represented in multiple levels of the other effect, then the random effects are
+crossed; otherwise, one is nested in the other.  
+
+Similarly:  
+"a factor is nested within another factor if it's levels belong to one and only one level of the other one" - Robert Long  
+https://stats.stackexchange.com/questions/525360/linear-mixed-model-with-partially-crossed-random-effects
+
 
 
 ## Zuur's approach (2009) pg 
@@ -103,7 +146,16 @@ At some point, I decided not to do repeated measures on Year rather than Station
 
 I think that I really need only do 2 & 4.  I have a fixed model that I want to test and the random compoenent is know. The only thing that I need to worry about is if the diagnostics are bad.  
 Note: REML provides better esimates of the variance components and standard errors than does ML  But REML can't be used to compare models with different fixed effects.  For this, you need ML.  While very important, I don't think that this is relevant since I generally use REML to compare dispersion models and am only looking at parameter estimates.
-https://stats.stackexchange.com/questions/116770/reml-or-ml-to-compare-two-mixed-effects-models-with-differing-fixed-effects-but/116796#116796
+https://stats.stackexchange.com/questions/116770/reml-or-ml-to-compare-two-mixed-effects-models-with-differing-fixed-effects-but/116796#116796  
+
+Also, I don't think I ever compared models with different fixed effects using AIC.  The only thing I changed was the distribution and the dispersion formula.  But I did add Year to the best model.  
+
+From Zuur:   
+Two models with nested random structures cannot be done with ML - use REML. I could have this
+Models with nested fixed effects structures must be done with ML. I could have this but the whole intent of a BACI is to test the interaction, ergo I don't have nexted fixed effects. 
+But websites say different fixed effects.https://stats.stackexchange.com/questions/116770/reml-or-ml-to-compare-two-mixed-effects-models-with-differing-fixed-effects-but/116796#116796  
+Bolker:
+"The reason is that REML estimates the random effects by considering linear combinations of the data that remove the fixed effects. If these fixed effects are changed, the likelihoods of the two models will not be directly comparable"
 
 ## Zeros  
 - 1. inflate the zeros slightly
@@ -126,6 +178,14 @@ glmmTMB family help file "a modified version of Gamma that skips checks for zero
 
 Bolker suggests no difference because a ziGamma doesn't make sense except as a hurdle model: https://stackoverflow.com/questions/65745148/is-there-a-difference-between-gamma-hurdle-two-part-models-and-zero-inflated-g  
 
+### fitted values for zi
+https://discourse.mc-stan.org/t/mathematical-notation-for-a-zero-inflated-negative-binomial-model-in-brms/21066/13
+https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
+
+1/(1 + exp(zi)) = q or event of a zero
+1/(1 + exp(-zi)) = p (1-q) or the probability its **not** a zero 
+With the notation, i've used, zi is applied equally to all observations.
+
 ## syntax  
 From https://cran.r-project.org/web/packages/glmmTMB/vignettes/glmmTMB.pdf
 ziformula = ~1 applies a single zero-inflation parameter to all observations. Default is ziformula ~0 which excludes zero inflation.  
@@ -139,7 +199,25 @@ a modified version of Gamma that skips checks for zero values, allowing it to be
 
 Note that the cannonical link for ziGamma is inverse.  I think that I just used log because I saw it and its easier to think this way.  Bolker also used it here: https://stackoverflow.com/questions/65745148/is-there-a-difference-between-gamma-hurdle-two-part-models-and-zero-inflated-g
 
+On nesting syntax:
+A model of nested random effects
+(block within site) could be 1|site/block if block labels are reused across multiple sites, or (1|site) + (1|block) if the nesting structure is explicit in the data and each level of block only occurs within one site. A model of crossed random effects (block and year) would be (1|block)+(1|year). (https://cran.r-project.org/web/packages/glmmTMB/vignettes/glmmTMB.pdf)
 
+
+https://psyteachr.github.io/ug3-stats/linear-mixed-effects-models-with-crossed-random-factors.html
+
+Very clear explanation of lmer4 syntax and relates terminology between approaches, e.g., paired t-test in mixed model terminology.  Also, advocates teh "maximal random effects" or "design-driven" approach in which you account for all sources of non-independence introduced by repeated sampling.
+The best way to think about this bracketed part of the formula (1 + x | subject_id) is as an instruction to lme4::lmer() about how to build a covariance matrix capturing the variance introduced by the random factor of subjects.
+
+> (fm2 <- lmer(diameter ~ 1 + (1|plate) + (1|sample), Penicillin))
+
+
+
+
+## Other things...
+Why didn't you combine this all into one big model with Pool as a factor?  Lazy but mostly lack of data and concerns about interpretation and lack of power.  
+
+Year effect was included just as a covariate to take care of residual patterns but is of no interest.  Further, in the case of BTYOY-np and AS-NP, the Time parameter is negative suggesting Before > After but the Year term was negative.  Upon inspection, this was generally due to most of the After values being less than the Before values (so mean After < mean Before) but there were a few sites After that were higher than the Before and this probably creates a negative trend.  So, rather than explain something that's not of interest and causing confusion, I just removed it. 
 
 # Model approaches and packages
 ```{r, eval=T,prompt=T, comment = F}
@@ -168,7 +246,11 @@ INT is for Interaction, not intercept.  dispformula ~ Int is therefore to accoun
 
 Note: The conditional model fits the mean, the dispersion models the variance via a log-link(see help("glmmTMB")). https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb  
 
-Note that I do not really understand the impact that this has on model outputs, especially fitted values.  I can reconstruct fitted values for a lm, glm, and glmm and for zero-inflated (hurdle) (see glmm_density.R or glmm_biomass.R - basically, fitted values = exp(fixed + random effects) x 1/1+exp(coefficients$zi) where fitted are coeffcients x design matrix) but not for  dispersion.  Remember that mixed models have an additional term while zero-inflated(hurdle) have an extra equation to model the zeros v non-zero values - again.  For dispersion, I assume that its just bringing in another term in the main model and it affects the variance - perhaps the impact is on confidence intervals but this requires matrix multiplication (see scratch_pad_glm.R) for mixed effects.
+Note that I do not really understand the impact that this has on model outputs, especially fitted values.  I can reconstruct fitted values for a lm, glm, and glmm and for zero-inflated (hurdle) (see glmm_density.R or glmm_biomass.R - basically, fitted values = exp(fixed + random effects) x 1/1+exp(coefficients$zi) where fitted are coeffcients x design matrix) but not for  dispersion.  Remember that mixed models have an additional term while zero-inflated(hurdle) have an extra equation to model the zeros v non-zero values - again.  For dispersion, I assume that its just bringing in another term in the main model and it affects the variance - perhaps the impact is on confidence intervals but this requires matrix multiplication (see scratch_pad_glm.R) for mixed effects.  
+
+**Some of the previous paragraph is wrong**.  I did a quick and fruitful search on ChatGPT which suggests that the dispersion model only modifies the variance and has no influence on the fitted values.  I went back and checked and the models with a dispersion formula do indeed match the fitted values by adding the fixed, random, and zi values together.  So i'm not sure where I went wrong on this but it is great news.  I think that the dispersion formula will influence the variance.  I should figure out how: the place to start is glmm_biomass_models.R, L 1558.  
+
+See also Zuur et al. 2009, pg 285 for reconstructing fitted values.  
 
 # Diagnostics
 I have spent a great deal of time looking at the diagnostics and for some tests, I can't get a model that doesn't violate at least some of the assumptions at least a bit.  Sometimes, the model won't converge if I make it too complicated.  In other cases, fixing one diagnostic makes causes other diagnostics to go bad.  I talked to Krista Baker and her suggestion was to document what was done and present the results.  If there were diagnostics that were violated, then you did your best and just need to temper the interpreations accordingly.   
