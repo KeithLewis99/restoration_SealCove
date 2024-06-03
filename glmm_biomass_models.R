@@ -69,8 +69,7 @@ library(cowplot)
 ### Need glmmTMB to have random effects and a non-normal distribution
 #### Gamma is OK here because there are no zeros
 bt.glmm1 <- glmmTMB(
-#  Biomass_100 ~ Time * Treatment + (1 | Year),
-  Biomass_100 ~ Time * Treatment + (1 | Station_new),
+  Biomass_100 ~ Time * Treatment + (1 | Year),
   dispformula = ~ Int,
   family = Gamma(link = log),
   REML = TRUE,
@@ -144,13 +143,16 @@ bt.glmm1_res <- residuals(bt.glmm1)
 
 
 
-## in this case, zi is applied equally to all observations.
+## this is a dispersion model and it seems to match the fitted values but probably wouldn't match the SE values without bringing the dispersion model in.
 exp(bt.glmm1_sum$coefficients$cond[1,1] + 
       bt.glmm1_sum$coefficients$cond[2,1] +
       bt.glmm1_sum$coefficients$cond[3,1] +
       bt.glmm1_sum$coefficients$cond[4,1] +
       bt.glmm1_ran$cond$Year[1,])
-bt.glmm1_fit[1]
+bt.glmm1_fit[1] # matches the above
+
+
+
 
 # BTYOY ----
 ## Cote approach
@@ -709,7 +711,7 @@ exp(asyoy.glmm2_sum$coefficients$cond[1,1] +
       # asyoy.glmm2_sum$coefficients$cond[3,1] + 
       # asyoy.glmm2_sum$coefficients$cond[4,1] + 
       asyoy.glmm2_ran$cond$Year[11,]) * # year 11, i.e., 2016
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
+  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1])) # zi term
 asyoy.glmm2_fit[96]
 
 # this works too - matches first value (year 1)
@@ -1010,7 +1012,7 @@ testTemporalAutocorrelation(btyoyp.glmm1_new_simres_recalc, time = unique(btyoy.
 summary(btyoyp.glmm1_new) # go with this
 #summary(btyoyp.glmm0) # temp resids aren't great
 mean_by_site(btyoy.pl.biomass.station, "yes", "d")
-
+ggplot(btyoy.pl, aes(x = Year, y = Biomass_100)) + geom_point()
 
 ### LUNKERS ----
 
@@ -1313,7 +1315,8 @@ mean_by_site(as.lu.biomass.station, "lunker", "d")
 #### Use Tweedie instead
 
 asyoyp.glmm1 <- glmmTMB(
-  Biomass_100 ~ Time + (1 | Year),
+  #Biomass_100 ~ Time + (1 | Year),
+  Biomass_100 ~ Time + numYear + (1 | Year),
   dispformula = ~ Time,
   family=ziGamma(link="log"), ziformula = ~1,
   REML = TRUE,
@@ -1383,7 +1386,7 @@ asyoyp.glmm2_sum$coefficients$zi[1,1]
 ## https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
 
 # 1/(1 + exp(zi)) = q or event of a zero
-# exp(zi) = p or the probablitly its not a zero or 1-q
+# 1/(1 + exp(-zi)) = p or the probability its not a zero or 1-q
 ## in this case, zi is applied equally to all observations.
 exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
       # asyoy.glmm2_sum$coefficients$cond[2,1] + 
@@ -1559,9 +1562,27 @@ bt.pl_pred <- as.data.frame(predict(btp.glmm2, se.fit = T))
 
 # random effect
 bt.pl_rdm <- ranef(btp.glmm2)
+
+# fitted effects design matrix and transpose
+mm <- as.matrix(model.matrix(~Time, data = bt.pl))
+mmt <- as.matrix(t(mm[1:33, 1:2]))
+
+
+# variance- covariance
 vcov(btp.glmm2)
-VarCorr(btp.glmm2)
+vc <- vcov(btp.glmm2, full = T)
+vc$cond[1:2, 1:2]
+
+VarCorr(btp.glmm2) # this is just variance of the random effect
 VarCorr(btp.glmm2)[[c("cond", "Year")]]
+
+# SE formula - from ChatGPT for the linear predictor and only for fixed effects
+mm%*%vc$cond%*%mmt
+diag(mm%*%vc$cond%*%mmt)
+sqrt(diag(mm%*%vc$cond%*%mmt)) # this almost perfectly matches the SE of the predicted values but I think its because the variance for the random effect is so small, i.e, if the variance for the randome effect was larger, it would be a problem.  The next step is SE for the fitted values which is the delta method - derivative of the fitted value X SE of the linear preditor.
+
+# for random effects - its not clear to me how to extract the vc matrix but then, it needs to be added to the fitted values.  Then, the 
+
 
 summary(glmmTMB(Biomass_100~Time, 
         family = Gamma(link=log),

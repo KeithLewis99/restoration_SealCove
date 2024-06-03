@@ -64,13 +64,15 @@ library(ggplot2)
 #### Gamma is OK here because there are no zeros
 bt_den.glmm1 <- glmmTMB(
   Density_100 ~ Time * Treatment + (1 | Year),
+  #Density_100 ~ Time * Treatment + (1 | Station_new) + (1 | Year),
   dispformula = ~ Int,
   family = Gamma(link = log),
   REML = TRUE,
   data = bt.np
 )
 
-summary(bt_den.glmm1)
+bt1 <- summary(bt_den.glmm1)
+bt2 <- summary(bt_den.glmm1)
 #str(bt_den.glmm1)
 model.matrix(bt_den.glmm1)
 
@@ -83,18 +85,20 @@ p
 
 ## Compre the results of: ### glmmTMB to glm.  The estimates are virtually identical but the Std. Errors are much smaller for glmmTMB.
 ### PLOTS/RESULTS WITH AND WITHOUT DISPERSION FOR THE GLMMTMB.  
-bt_den.glmm2 <- glmmTMB(Density_100~Time*Treatment + (1|Year), 
-                    #dispformula = ~ Int,
-                    family = Gamma(link=log),
-                    REML = TRUE,
-                    data=bt.np)
+bt_den.glmm2 <- glmmTMB(
+  Density_100~Time*Treatment + (1|Year),
+  #Density_100 ~ Time * Treatment + (1 | Station_new) + (1 | Year),
+    #dispformula = ~ Int,
+    family = Gamma(link=log),
+    REML = TRUE,
+  data=bt.np)
 summary(bt_den.glmm2)
 #str(bt_den.glmm2)
 anova(bt_den.glmm1, bt_den.glmm2) # this suggests that model bt_den.glmm1 with dispersion is slightly better than without (bt_den.glmm2)
 
 
 ## diagnostics ----
-bt_den.glmm1_simres <- simulateResiduals(bt_den.glmm1)
+bt_den.glmm1_simres <- simulateResiduals(bt_den.glmm2)
 # str(bt_den.glmm1_simres,1)
 plot(bt_den.glmm1_simres)
 # The normality and homogeneity of variance look great.  
@@ -369,6 +373,7 @@ testTemporalAutocorrelation(btyoy.glmm4_optim_simres_recalc, time = unique(btyoy
 
 # spatial independence
 btyoy.glmm4_optim_simres_recalcSpace <- recalculateResiduals(btyoy.glmm4_optim_simres, group = as.factor(bt.np$Station_new))
+
 testSpatialAutocorrelation(btyoy.glmm4_optim_simres_recalcSpace, x = unique(btyoy.np$X), y = unique(btyoy.np$Y)) # spatial pattern in pretty bad
 
 spatialAutoCorrBase_fun(btyoy.np, btyoy.glmm4_optim_simres_recalcSpace)   
@@ -382,6 +387,7 @@ spatialAutoCorrGG_fun(btyoy.np.density.all)
 summary(btyoy.glmm4_optim)   
 mean_by_site(btyoy.np.density.station, "no", "d")
 baci.plot(btyoy.np.density.baci, "d")
+ggplot(btyoy.np, aes(x = Year, y = Density_100)) + geom_point()
 
 # tmp <- summary(btyoy.glmm4_optim)
 # tmp$coefficients$cond
@@ -690,9 +696,9 @@ baci.plot(asyoy.np.density.baci, "d")
 asyoy.np[asyoy.np$Station_new == "D2",]
 asyoy_den.glmm1_sum <- summary(asyoy_den.glmm1)
 asyoy_den.glmm1_ran <- ranef(asyoy_den.glmm1)
-asyoy_den.glmm1_fit <- fitted(asyoy.glmm2, se.fit = T)
+asyoy_den.glmm1_fit <- fitted(asyoy_den.glmm1, se.fit = T)
 
-# this does not match the fitted values but the dispersion formula may have something to do with that. 
+# this matches the fitted values but would need the dispersion value for the SE 
 exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] + 
       asyoy_den.glmm1_sum$coefficients$cond[2,1] + 
       asyoy_den.glmm1_sum$coefficients$cond[3,1] + 
@@ -701,6 +707,19 @@ exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] +
   1/(1 + exp(asyoy_den.glmm1_sum$coefficients$zi[1,1]))
 asyoy.np[1:10, c(1:2, 5:6, 10:13, 17)]
 asyoy_den.glmm1_fit[1]
+
+# second value matches as well - Control-After so only the intercept is used
+asyoy.np[90:96, c(1:2, 5:6, 10:13, 17)]
+exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] + 
+      asyoy_den.glmm1_sum$coefficients$cond[2,1]*0 + 
+      asyoy_den.glmm1_sum$coefficients$cond[3,1]*0 + 
+      asyoy_den.glmm1_sum$coefficients$cond[4,1]*0 + 
+      asyoy_den.glmm1_ran$cond$Year[11,]) *
+  1/(1 + exp(asyoy_den.glmm1_sum$coefficients$zi[1,1]))
+asyoy_den.glmm1_fit[96]
+
+# gives variance-covariance for all components
+vcov(asyoy_den.glmm1)
 
 temp <- asyoy.np |>
   filter(Time == "Before") |>
@@ -921,10 +940,12 @@ summary(btyoyp_den.glmm1)
 
 ## Compre the results of glmmTMB to glm.  The estimates are virtually identical but the Std. Errors are much smaller for glmmTMB.
 ### PLOTS/RESULTS WITH AND WITHOUT DISPERSION FOR THE GLMMTMB.
-btyoyp_den.glmm2 <- glmmTMB(Density_100~Time + (1|Year),
-                        family = tweedie,
-                        REML = TRUE,
-                        data=btyoy.pl)
+btyoyp_den.glmm2 <- glmmTMB(
+  Density_100~Time + (1|Year),
+# Density_100 ~ Time + I(numYear^2) + (1 | Year), # gives NAs
+      family = tweedie,
+      REML = TRUE,
+  data=btyoy.pl)
 summary(btyoyp_den.glmm2)
 anova(btyoyp_den.glmm1, btyoyp_den.glmm2) # this suggests that model btyoyp_den.glmm1 with dispersion is a bit better than btyoyp_den.glmm2, i.e., without dispersion
 ## The estimates are virtually identical but the Std. Errors are a fair bit smaller than the model with dispersion and p-value changes.  Proceed with btyoyp_den.glmm1
@@ -986,6 +1007,8 @@ testTemporalAutocorrelation(btyoyp_den.glmm1_simres_recalc, time = unique(btyoy.
 #summary(btyoyp_den.glmm_new)
 summary(btyoyp_den.glmm1)
 mean_by_site(btyoy.pl.density.station, "yes", "d")
+ggplot(btyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
+
 
 
 ## LUNKERS ----
@@ -1080,6 +1103,9 @@ testTemporalAutocorrelation(btyoyl_den.glmm_new_simres_recalc, time = unique(bty
 summary(btyoyl_den.glmm_new1)
 mean_by_site(btyoy.lu.density.station, "lunker", "d")
 # driven by one site, C3
+ggplot(btyoy.lu, aes(x = Year, y = Density_100)) + geom_point()
+
+
 
 
 ## AS ----
@@ -1192,7 +1218,7 @@ testTemporalAutocorrelation(asp_den.glmm1_simres_recalc, time = unique(as.pl$Yea
 ## Resids not great but p-value far from alpha.  Proceed with this model -asp_den.glmm1
 summary(asp_den.glmm3)
 mean_by_site(as.pl.density.station, "yes", z = "d")
-
+#ggplot(as.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 
 ### LUNKERS ----
@@ -1339,7 +1365,11 @@ testTemporalAutocorrelation(asyoyp_den.glmm3_simres_recalc, time = unique(asyoy.
 asyoyp_den.glmm4 <- glmmTMB(
   #Density_100 ~ Time + I(as.numeric(Year)^2) + (1 | Year),
 #  Density_100 ~ Time + I(numYear^2) + (1 | Year), # all NAs
-  Density_100 ~ Time + numYear^2 + (1 | Year),
+  Density_100 ~ Time + numYear + (1 | Year), # this works - dashboard
+#  Density_100 ~ Time + numYear + (1 | Year) + (1 | Station_new), # this works
+#  Density_100 ~ Time + I(numYear-1990) + (1 | Year) + (1 | Station_new), # this works
+  #Density_100 ~ Time + (1 | Year) + (1|Time/Station_new), # doesn't converge
+#  Density_100 ~ Time + numYear^2 + (1 | Year) + (1|Station_new), # doesn't converge
   family= tweedie,
   REML = TRUE,
   data = asyoy.pl
@@ -1367,7 +1397,7 @@ testTemporalAutocorrelation(asyoyp_den.glmm4_simres_recalc, time = unique(asyoy.
 summary(asyoyp_den.glmm4)
 mean_by_site(asyoy.pl.density.station, "yes", "d")
 # this makes some sense now
-
+ggplot(asyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 ### LUNKERS ----
 asyoyl_den.glmm1 <- glmmTMB(
@@ -1392,6 +1422,7 @@ asyoyl_den.glmm2 <- glmmTMB(
 summary(asyoyl_den.glmm2)
 
 anova(asyoyl_den.glmm1, asyoyl_den.glmm2)  # with dispesion is better - asyoyl_den.glmm1
+ggplot(asyoy.lu, aes(x = Year, y = Density_100)) + geom_point()
 
 ### diagnostics ----
 asyoyl_den.glmm1_simres <- simulateResiduals(asyoyl_den.glmm1)
