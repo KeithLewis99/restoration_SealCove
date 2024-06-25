@@ -135,23 +135,6 @@ summary(bt.glmm1)
 mean_by_site(bt.np.biomass.station, "no", "b")
 baci.plot(bt.np.biomass.baci, "b")
 
-bt.np[bt.np$Station_new == "D2",]
-bt.glmm1_sum <- summary(bt.glmm1)
-bt.glmm1_fit <- fitted(bt.glmm1, se.fit = T)
-bt.glmm1_ran <- ranef(bt.glmm1)
-bt.glmm1_res <- residuals(bt.glmm1)
-
-
-
-## this is a dispersion model and it seems to match the fitted values but probably wouldn't match the SE values without bringing the dispersion model in.
-exp(bt.glmm1_sum$coefficients$cond[1,1] + 
-      bt.glmm1_sum$coefficients$cond[2,1] +
-      bt.glmm1_sum$coefficients$cond[3,1] +
-      bt.glmm1_sum$coefficients$cond[4,1] +
-      bt.glmm1_ran$cond$Year[1,])
-bt.glmm1_fit[1] # matches the above
-
-
 
 
 # BTYOY ----
@@ -681,57 +664,9 @@ summary(asyoy.glmm2)
 ###  OK, I finally feel that this is defensible - so stop obsessing and move on!
 mean_by_site(asyoy.np.biomass.station, "no", "b")
 baci.plot(asyoy.np.biomass.baci, "b")
-fitted(asyoy.glmm2, se.fit = T)
-ranef(asyoy.glmm2)
-residuals(asyoy.glmm2)
 
 
 
-asyoy.np[asyoy.np$Station_new == "D2",]
-asyoy.glmm2_sum <- summary(asyoy.glmm2)
-asyoy.glmm2_fit <- fitted(asyoy.glmm2, se.fit = T)
-asyoy.glmm2_ran <- ranef(asyoy.glmm2)
-asyoy.glmm2_res <- residuals(asyoy.glmm2)
-asyoy.glmm2_sum$coefficients$zi[1,1]
-exp(asyoy.glmm2_sum$coefficients$zi[1,1])/(1+exp(asyoy.glmm2_sum$coefficients$zi[1,1])) # this gives the same as plogis but plogis may not be right
-plogis(asyoy.glmm2_sum$coefficients$zi[1,1]) 
-# this converts from logit back to probability but we want q, not p
-plogis(1-asyoy.glmm2_sum$coefficients$zi[1,1])
-
-
-# this actually seems to work - matches last value 
-## https://discourse.mc-stan.org/t/mathematical-notation-for-a-zero-inflated-negative-binomial-model-in-brms/21066/13
-## https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
-
-# 1/(1 + exp(zi)) = q or event of a zero
-# exp(zi) = p or the probablitly its not a zero or 1-q
-## in this case, zi is applied equally to all observations.
-exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
-      asyoy.glmm2_ran$cond$Year[11,]) * # year 11, i.e., 2016
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1])) # zi term
-asyoy.glmm2_fit[96]
-
-# this works too - matches first value (year 1)
-exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
-       asyoy.glmm2_sum$coefficients$cond[2,1] + 
-       asyoy.glmm2_sum$coefficients$cond[3,1] + 
-       asyoy.glmm2_sum$coefficients$cond[4,1] + 
-      asyoy.glmm2_ran$cond$Year[1,]) *
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1])) 
-asyoy.glmm2_fit[1]
-
-# first zero value D15 in 1991 (Year 4) Control - After - this matches 
-exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
-      asyoy.glmm2_ran$cond$Year[4,]) *
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
-asyoy.glmm2_fit[15]
-asyoy.glmm2_res[15] # so not a good fit but the resid is large and gets it to the actual value which is zero
 
 # **POOLS ----
 # **POOLS ----
@@ -1373,47 +1308,6 @@ mean_by_site(asyoy.pl.biomass.station, "yes", "d")
 baci.plot(asyoy.pl.biomass.baci, "b")
 
 
-asyoy.pl[asyoy.pl$Station_new == "D1",]
-asyoyp.glmm2_sum <- summary(asyoyp.glmm2)
-asyoyp.glmm2_fit <- fitted(asyoyp.glmm2, se.fit = T)
-asyoyp.glmm2_ran <- ranef(asyoyp.glmm2)
-asyoyp.glmm2_res <- residuals(asyoyp.glmm2)
-asyoyp.glmm2_sum$coefficients$zi[1,1]
-
-
-# this actually seems to work - matches last value 
-## https://discourse.mc-stan.org/t/mathematical-notation-for-a-zero-inflated-negative-binomial-model-in-brms/21066/13
-## https://www.montana.edu/rotella/documents/502/Prob_odds_log-odds.pdf
-
-# 1/(1 + exp(zi)) = q or event of a zero
-# 1/(1 + exp(-zi)) = p or the probability its not a zero or 1-q
-## in this case, zi is applied equally to all observations.
-exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
-      asyoy.glmm2_ran$cond$Year[11,]) *
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
-asyoy.glmm2_fit[96]
-
-# this works too - matches first value
-exp(asyoyp.glmm2_sum$coefficients$cond[1,1] + 
-      asyoyp.glmm2_sum$coefficients$cond[2,1] + 
-      asyoyp.glmm2_sum$coefficients$cond[3,1]*1988 + 
-      asyoyp.glmm2_ran$cond$Year[1,]) *
-  1/(1 + exp(asyoyp.glmm2_sum$coefficients$zi[1,1])) 
-asyoyp.glmm2_fit[1]
-
-# first zero value D15 in 1991 Control - After - this matches 
-exp(asyoy.glmm2_sum$coefficients$cond[1,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[2,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[3,1] + 
-      # asyoy.glmm2_sum$coefficients$cond[4,1] + 
-      asyoy.glmm2_ran$cond$Year[4,]) *
-  1/(1 + exp(asyoy.glmm2_sum$coefficients$zi[1,1]))
-asyoy.glmm2_fit[15]
-asyoy.glmm2_res[15] # so not a good fit but the resid is large and gets it to the actual value which is zero
-
 
 
 ### LUNKERS ----
@@ -1554,34 +1448,10 @@ dev.off()
 #### From the above page: "If a variance component is zero, dropping it from the model will have no effect on any of the estimated quantities (although it will affect the AIC, as the variance parameter is counted even though it has no effect). Pasch, Bolker, and Phelps (2013) gives one example where random effects were dropped because the variance components were consistently estimated as zero. Conversely, if one chooses for philosophical grounds to retain these parameters, it won’t change any of the answers."
 ##### I ran the same model without the random effect and the conditional model was exactly the same.  Therefore, keeping the random effects in on philosophical grounds.  
 
-# back transformed
-bt.pl_fit <- fitted(btp.glmm2)
-
-# log scale
-bt.pl_pred <- as.data.frame(predict(btp.glmm2, se.fit = T))
-
-# random effect
-bt.pl_rdm <- ranef(btp.glmm2)
-
-# fitted effects design matrix and transpose
-mm <- as.matrix(model.matrix(~Time, data = bt.pl))
-mmt <- as.matrix(t(mm[1:33, 1:2]))
+summary(btp.glmm2)
 
 
-# variance- covariance
-vcov(btp.glmm2)
-vc <- vcov(btp.glmm2, full = T)
-vc$cond[1:2, 1:2]
 
-VarCorr(btp.glmm2) # this is just variance of the random effect
-VarCorr(btp.glmm2)[[c("cond", "Year")]]
-
-# SE formula - from ChatGPT for the linear predictor and only for fixed effects
-mm%*%vc$cond%*%mmt
-diag(mm%*%vc$cond%*%mmt)
-sqrt(diag(mm%*%vc$cond%*%mmt)) # this almost perfectly matches the SE of the predicted values but I think its because the variance for the random effect is so small, i.e, if the variance for the randome effect was larger, it would be a problem.  The next step is SE for the fitted values which is the delta method - derivative of the fitted value X SE of the linear preditor.
-
-# for random effects - its not clear to me how to extract the vc matrix but then, it needs to be added to the fitted values.  Then, the 
 
 
 summary(glmmTMB(Biomass_100~Time, 

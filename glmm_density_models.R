@@ -533,14 +533,7 @@ as_den.glmm3_new <- glmmTMB(
   data = as.np
 )
 summary(as_den.glmm3_new)
-confint(as_den.glmm3_new)
-x <- 0.2356505864
-sd <- 0.32623
-cl <- x-sd*1.96 # lower cl on log scale
 
-y <- exp(x)
-esd <- exp(sd)
-ecl <- y-esd*1.96 # lower cl on normal scale
 
 # redo Diagnostics
 as.glmm4_new_simres <- simulateResiduals(as_den.glmm3_new)
@@ -693,33 +686,6 @@ summary(asyoy_den.glmm1)
 mean_by_site(asyoy.np.density.station, "no", "d")
 baci.plot(asyoy.np.density.baci, "d")
 
-asyoy.np[asyoy.np$Station_new == "D2",]
-asyoy_den.glmm1_sum <- summary(asyoy_den.glmm1)
-asyoy_den.glmm1_ran <- ranef(asyoy_den.glmm1)
-asyoy_den.glmm1_fit <- fitted(asyoy_den.glmm1, se.fit = T)
-
-# this matches the fitted values but would need the dispersion value for the SE 
-exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] + 
-      asyoy_den.glmm1_sum$coefficients$cond[2,1] + 
-      asyoy_den.glmm1_sum$coefficients$cond[3,1] + 
-      asyoy_den.glmm1_sum$coefficients$cond[4,1] + 
-      asyoy_den.glmm1_ran$cond$Year[1,]) *
-  1/(1 + exp(asyoy_den.glmm1_sum$coefficients$zi[1,1]))
-asyoy.np[1:10, c(1:2, 5:6, 10:13, 17)]
-asyoy_den.glmm1_fit[1]
-
-# second value matches as well - Control-After so only the intercept is used
-asyoy.np[90:96, c(1:2, 5:6, 10:13, 17)]
-exp(asyoy_den.glmm1_sum$coefficients$cond[1,1] + 
-      asyoy_den.glmm1_sum$coefficients$cond[2,1]*0 + 
-      asyoy_den.glmm1_sum$coefficients$cond[3,1]*0 + 
-      asyoy_den.glmm1_sum$coefficients$cond[4,1]*0 + 
-      asyoy_den.glmm1_ran$cond$Year[11,]) *
-  1/(1 + exp(asyoy_den.glmm1_sum$coefficients$zi[1,1]))
-asyoy_den.glmm1_fit[96]
-
-# gives variance-covariance for all components
-vcov(asyoy_den.glmm1)
 
 temp <- asyoy.np |>
   filter(Time == "Before") |>
@@ -732,13 +698,7 @@ temp1 <- asyoy.np |>
   summarise(mean = mean(Density_100))
 
 
-# https://stats.stackexchange.com/questions/615196/which-one-conditional-or-dispersion-model-is-the-final-result-in-glmmtmb
-disp <- exp(sqrt(asyoy_den.glmm1_sum$coefficients$disp[1,1] +
-              asyoy_den.glmm1_sum$coefficients$disp[2,1] +
-              asyoy_den.glmm1_sum$coefficients$disp[3,1] +
-              asyoy_den.glmm1_sum$coefficients$disp[4,1]))
- disp
-sqrt(disp)
+
 
 
 # POOLS ----
@@ -1459,6 +1419,8 @@ mean_by_site(asyoy.lu.density.station, "lunker", "d")
 ## riffles ----
 ### see scratch_pad_glm.R for all the rationale and justification for why this works
 
+summary(bt_den.glmm1)
+
 # back transformed
 bt.np_fit <- fitted(bt_den.glmm1, se.fit=T)
 
@@ -1501,6 +1463,7 @@ yr_1988 <- df_bt.np$bt.np_fit[1]
 yr_1989 <- df_bt.np$bt.np_fit[8]
 abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
 dev.off()
+
 
 
 
