@@ -8,6 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(kableExtra)
+library(magrittr)
 
 source("glmm_data.R")
 source("glmm_fun.R")
@@ -20,6 +22,27 @@ library(readr)
 library(tidyr)
 library(ggplot2)
 library(cowplot)
+
+# bt_den_ciout <- read_csv("output/bt_den_ci.csv")
+# bt_ciout <- read_csv("output/bt_ci.csv")
+# btyoy_den_ciout <- read_csv("output/btyoy_den_ci.csv")
+# ...
+# asyoy_ciout <- read_csv("output/asyoy_ci.csv")
+
+# create pattern
+temp = list.files(path = "output", pattern=".*_ci.csv$", full.names = T)
+
+# read all files in a folder that match a pattern and name each one
+name_files = function(x) {
+  name = gsub(".*output/", "", x)
+  name = gsub("_ci.csv", "", paste0(name, "_ci"))
+  return(name)
+}
+
+# create a list of dataframes, change the subscript to a name, extract as dataframes
+ls_sc_ci = (lapply(temp, read.csv))
+names(ls_sc_ci) <- name_files(temp)
+list2env(ls_sc_ci, envir = .GlobalEnv)
 ```
 
 # Background
@@ -43,7 +66,8 @@ The solution as I see it is to use GLMM with zeroinflated gamma distributions or
 
 
 
-
+<!-- Summary_all -->
+<!-- Just graphs -->
   
 BT {data-navmenu="Summary_all"}
 =====
@@ -56,7 +80,7 @@ Column
 
 ```{r}
 # created in mean_stderrors_andplots_KL.R and from glmm_anova.R
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_density.png")
+knitr::include_graphics("output/BT_density.png")
 ```
 
 Column
@@ -65,7 +89,7 @@ Column
 ### Biomass
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_biomass.png")
+knitr::include_graphics("output/BT_biomass.png")
 ```
 
 
@@ -78,7 +102,7 @@ Column
 ### Density
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_density.png")
+knitr::include_graphics("output/BTYOY_density.png")
 ```
 
 Column
@@ -87,7 +111,7 @@ Column
 ### Biomass
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_biomass.png")
+knitr::include_graphics("output/BTYOY_biomass.png")
 ```
 
 AS {data-navmenu="Summary_all"}
@@ -99,7 +123,7 @@ Column
 ### Density
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_density.png")
+knitr::include_graphics("output/AS_density.png")
 ```
 
 Column
@@ -108,7 +132,7 @@ Column
 ### Biomass
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_biomass.png")
+knitr::include_graphics("output/AS_biomass.png")
 ```
 
 ASYOY {data-navmenu="Summary_all"}
@@ -120,7 +144,7 @@ Column
 ### Density
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_density.png")
+knitr::include_graphics("output/ASYOY_density.png")
 ```
 
 Column
@@ -129,11 +153,125 @@ Column
 ### Biomass
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_biomass.png")
+knitr::include_graphics("output/ASYOY_biomass.png")
 ```
 
 
 
+<!-- Summary_all -->
+<!-- Just CIs -->
+  
+BT {data-navmenu="Summary_CI"}
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r, echo=FALSE}
+kbl(bt_den_ci[1:4, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: BT density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(bt_pl_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: BT density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(bt_lu_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: BT density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r, echo=F}
+```
+
+BTYOY {data-navmenu="Summary_CI"}
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r, echo=FALSE}
+kbl(btyoy_den_ci[1:5, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: BTYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r, echo=F}
+```
+
+
+AS {data-navmenu="Summary_CI"}
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r, echo=FALSE}
+kbl(as_den_ci[1:5, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: AS density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r, echo=F}
+```
+
+
+ASYOY {data-navmenu="Summary_CI"}
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r, echo=FALSE}
+kbl(asyoy_den_ci[1:5, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: ASYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r, echo=F}
+```
 
 <!-- LUNKERS -->
 
@@ -146,26 +284,26 @@ Column {data-width=350}
 ### BT
 ```{r}
 # from glmm_anova.R
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_LU_density.png")
+knitr::include_graphics("output/BT_LU_density.png")
 ```
 
 
 ### BTYOY
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_LU_density.png")
+knitr::include_graphics("output/BTYOY_LU_density.png")
 ```
 
 Column {data-width=350}
 -------------------------------------
 ### AS
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_LU_density.png")
+knitr::include_graphics("output/AS_LU_density.png")
 ```
 
 
 ### ASYOY
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_LU_density.png")
+knitr::include_graphics("output/ASYOY_LU_density.png")
 ```
 
 
@@ -178,13 +316,13 @@ Column {data-width=350}
 -------------------------------------
 ### BT
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BT_LU_biomass.png")
+knitr::include_graphics("output/BT_LU_biomass.png")
 ```
 
 
 ### BTYOY
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BTYOY_LU_biomass.png")
+knitr::include_graphics("output/BTYOY_LU_biomass.png")
 ```
 
 
@@ -192,13 +330,13 @@ Column {data-width=350}
 -------------------------------------
 ### AS
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/AS_LU_biomass.png")
+knitr::include_graphics("output/AS_LU_biomass.png")
 ```
 
 
 ### ASYOY
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/ASYOY_LU_biomass.png")
+knitr::include_graphics("output/ASYOY_LU_biomass.png")
 ```
 
 
@@ -705,13 +843,13 @@ Column {data-width=350}
 ### Density - Riffle
 ```{r}
 # from glmm_density_models.R
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTdensity.png")
+knitr::include_graphics("output/fade_np_BTdensity.png")
 ```
 
 
 ### Density - Pool
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_pool_BTdensity.png")
+knitr::include_graphics("output/fade_pool_BTdensity.png")
 ```
 
 Column {data-width=350}
@@ -719,16 +857,22 @@ Column {data-width=350}
 ### Biomass - Riffle
 ```{r}
 # from glmm_biomss_models.R
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_np_BTbiomass.png")
+knitr::include_graphics("output/fade_np_BTbiomass.png")
 ```
 
 
 ### Biomass - Pool
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/fade_pool_BTbiomass.png")
+knitr::include_graphics("output/fade_pool_BTbiomass.png")
 ```
 
 
+# BACI plot
+
+```{r}
+# created in baci_plot_explained.R
+knitr::include_graphics("output/plot_baci_explained.png")
+```
 
 # Notes
 
@@ -736,7 +880,7 @@ Column
 -------------------------------------
 
 ```{r}
-knitr::include_graphics("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/output/BACI_params.png")
+knitr::include_graphics("output/BACI_params.png")
 ```
 
 
