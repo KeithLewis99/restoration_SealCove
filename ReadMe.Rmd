@@ -329,6 +329,13 @@ Basically, the density and biomass for AS in pools looks the same and this is co
 
 But for ASYOY, the graphs look very different - pools are much higher before than after.  This is confrimed by the stats for biomass but not density.  With density, a quadradic term for year was needed to get the resids to look ok and this may have soaked up all the variance.  
 
+# re-think presentation of results
+Upon re-reading the ms, after it had been out for review from June 2024 to December, i found that the INtro and Methods were really good.  However, I was a bit disappointed with the Results - I found them very hard to read which is bad news for any potential reviewer.  I don't want to rely on p-values.  We are interesed in effect sizes and the thing is how to present them. I re-read all my "problem with p-values" papers and found that there are lots of was to present effect sizes (see Nakagawa and Cuthill 2007) but in this case, the parameter estimates are telling us what we want to know, i.e., the differences between the control-after v. control before, impact-after v. impact-before, and impact-after v. impact-before.
+
+According to ChatGPT (I could find nothing on Google, you just have to take the exponential of the parameter estimate to back-transform it - see scratch_pad_variance.R)
+
+But I get a curious result ito the models with numYear.  What happens is that the intercept goes to zero and then you need the year (fixed and random) to get to a value that makes sense.  This value is then modified by the parameter estimates for the rest of the fixed terms (treat*time).  I replicated this using code in scratch_pad_variance.R and get the same result even when using Tweedie distribution.  The problem that I had is that the fitted values are probably not all that close to the actual values, i.e., these models aren't great.    But proceed with reporting the CIs for the parameter estimates.
+
 # Meeting for early May with Clarke and Kristin
 
 
