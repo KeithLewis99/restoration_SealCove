@@ -11,7 +11,7 @@ BT_estimates_by_site <- read_csv("CS_Estimates/BT_estimates_by_site.csv", col_ty
 head(BT_estimates_by_site)
 str(BT_estimates_by_site)
 
-edited_cs_estimates_by_site <- read.csv("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/CS_Estimates/edited_cs_estimates_by_site.csv")
+edited_cs_estimates_by_site <- read.csv("CS_Estimates/edited_cs_estimates_by_site.csv")
 str(edited_cs_estimates_by_site)
 unique(edited_cs_estimates_by_site$Station)
 
