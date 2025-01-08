@@ -1198,7 +1198,7 @@ mean_by_site(as.pl.density.station, "yes", z = "d")
 
 
 ## create CIs ----
-tab.ci(asp_den.glmm3, "as_pl_den")
+#tab.ci(asp_den.glmm3, "as_pl_den")
 
 
 ### LUNKERS ----
@@ -1381,7 +1381,7 @@ mean_by_site(asyoy.pl.density.station, "yes", "d")
 ggplot(asyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
-tab.ci(asyoyp_den.glmm4, "as_pl_den")
+tab.ci(asyoyp_den.glmm4, "asyoy_pl_den")
 
 
 ### LUNKERS ----
@@ -1439,7 +1439,7 @@ mean_by_site(asyoy.lu.density.station, "lunker", "d")
 # Driven by C3
 
 ## create CIs ----
-tab.ci(asyoyl_den.glmm2, "as_lu_den")
+tab.ci(asyoyl_den.glmm2, "asyoy_lu_den")
 
 
 # fading plots ----
