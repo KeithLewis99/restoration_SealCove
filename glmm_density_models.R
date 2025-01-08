@@ -150,6 +150,9 @@ ggplot(bt.pl.density.station, aes(as.factor(Station_new), mean)) +
   facet_grid(~factor(Time, levels = c("Before", "After")))
 
 
+## create CIs ----
+tab.ci(bt_den.glmm1, "bt_den")
+
 # BTYOY ----
 ## Cote approach
 # BTYOY1.glm.not.pool.full <- glm(mean~Time*Treatment, family=Gamma(link=log), data = BTYOYdensitybyhabitat.not.pool)
@@ -406,6 +409,8 @@ ggplot(btyoy.np, aes(x = Year, y = Density_100)) + geom_point()
 # plot(test$Year, test$mean, pch = 4)
 # lines(test$Year, )
 
+## create CIs ----
+tab.ci(btyoy.glmm4_optim, "btyoy_den")
 
 
 
@@ -564,6 +569,8 @@ mean_by_site(as.np.density.station, "no", "d")
 baci.plot(as.np.density.baci, "d")
 
 
+## create CIs ----
+tab.ci(as_den.glmm3_new, "as_den")
 
 
 
@@ -698,10 +705,11 @@ temp1 <- asyoy.np |>
   summarise(mean = mean(Density_100))
 
 
+## create CIs ----
+tab.ci(asyoy_den.glmm1, "asyoy_den")
 
 
 
-# POOLS ----
 # POOLS ----
 ## data ----
 ### create data sets for all species
@@ -780,6 +788,8 @@ testTemporalAutocorrelation(btp_den.glmm2_simres_recalc, time = unique(bt.pl$Yea
 summary(btp_den.glmm2)
 mean_by_site(bt.pl.density.station, "yes", "d")
 
+## create CIs ----
+tab.ci(btp_den.glmm2, "bt_pl_den")
 
 ### LUNKERS ----
 btl_den.glmm1 <- glmmTMB(
@@ -836,6 +846,8 @@ testTemporalAutocorrelation(btl_den.glmm1_simres_recalc, time = unique(bt.lu$Yea
 summary(btl_den.glmm1)
 mean_by_site(bt.lu.density.station, "lunker", "d")
 
+## create CIs ----
+tab.ci(btl_den.glmm1, "bt_lu_den")
 
 
 # BTYOY ----
@@ -969,6 +981,8 @@ summary(btyoyp_den.glmm1)
 mean_by_site(btyoy.pl.density.station, "yes", "d")
 ggplot(btyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
+## create CIs ----
+tab.ci(btyoyp_den.glmm1, "btyoy_pl_den")
 
 
 ## LUNKERS ----
@@ -1066,9 +1080,11 @@ mean_by_site(btyoy.lu.density.station, "lunker", "d")
 ggplot(btyoy.lu, aes(x = Year, y = Density_100)) + geom_point()
 
 
+## create CIs ----
+tab.ci(btyoyl_den.glmm_new1, "btyoy_lu_den")
 
 
-## AS ----
+# AS ----
 # using all the data
 # asp_den.gls3 <- gls(Density_100~Time, data=as.pl)
 # asp_den.gls4 <- gls(Density_100~Time, weights = varIdent(form = ~ 1|Int), data=as.pl)
@@ -1181,6 +1197,10 @@ mean_by_site(as.pl.density.station, "yes", z = "d")
 #ggplot(as.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 
+## create CIs ----
+tab.ci(asp_den.glmm3, "as_pl_den")
+
+
 ### LUNKERS ----
 asl_den.glmm1 <- glmmTMB(
   Density_100 ~ Lunker + (1 | Year),
@@ -1231,9 +1251,10 @@ plot(as.lu$Year, as.lu$Density_100)
 summary(asl_den.glmm1) # resids not great but its all driven by C3
 mean_by_site(as.lu.density.station, "lunker", "d")
 
+## create CIs ----
+tab.ci(asl_den.glmm1, "as_lu_den")
 
-
-## ASYOY ----
+# ASYOY ----
 # using all the data
 # asyoyp_den.gls3 <- gls(Density_100~Time, data=asyoy.pl)
 # asyoyp_den.gls4 <- gls(Density_100~Time, weights = varIdent(form = ~ 1|Int), data=asyoy.pl)
@@ -1359,6 +1380,10 @@ mean_by_site(asyoy.pl.density.station, "yes", "d")
 # this makes some sense now
 ggplot(asyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
+## create CIs ----
+tab.ci(asyoyp_den.glmm4, "as_pl_den")
+
+
 ### LUNKERS ----
 asyoyl_den.glmm1 <- glmmTMB(
   Density_100 ~ Lunker + (1 | Year),
@@ -1413,6 +1438,8 @@ summary(asyoyl_den.glmm2)
 mean_by_site(asyoy.lu.density.station, "lunker", "d")
 # Driven by C3
 
+## create CIs ----
+tab.ci(asyoyl_den.glmm2, "as_lu_den")
 
 
 # fading plots ----
