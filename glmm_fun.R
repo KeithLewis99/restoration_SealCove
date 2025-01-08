@@ -260,3 +260,25 @@ fig.np <- function(df){
 #   theme(panel.grid.minor=element_blank(),
 #         panel.grid.major=element_blank()) +
 #   geom_vline(xintercept = 3, linetype = 3)
+
+
+
+
+#' Confidence Interval table
+#'
+#' @param df dataframe
+#' @param name name of the file to be exported, e.g. bt_den for brook trout density or bt for brook trout biomass
+#'
+#' @return a csv file with the confidence intervals for the glmmTMB object to be used in Overview.Rmd
+#' @export
+#'
+#' @examples
+tab.ci <- function(df, name){
+  #browser()
+  df_ciout <- as.data.frame(confint(df))
+  df_ciout <- cbind(parm = rownames(df_ciout), data.frame(df_ciout, row.names = NULL)) 
+  colnames(df_ciout)[2] <- "2.5%"
+  colnames(df_ciout)[3] <- "97.5%"
+  write.csv(df_ciout, paste0("output/", name, "_ci.csv"))
+}
+
