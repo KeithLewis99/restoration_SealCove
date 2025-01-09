@@ -135,6 +135,8 @@ summary(bt.glmm1)
 mean_by_site(bt.np.biomass.station, "no", "b")
 baci.plot(bt.np.biomass.baci, "b")
 
+## create CIs ----
+tab.ci(bt.glmm1, "bt")
 
 
 # BTYOY ----
@@ -411,6 +413,9 @@ summary(btyoy.glmm4_new)
 mean_by_site(btyoy.np.biomass.station, "no", "b")
 baci.plot(btyoy.np.biomass.baci, "b")
 
+## create CIs ----
+tab.ci(btyoy.glmm4_new, "btyoy")
+
 
 # AS ----
 ## Cote approach
@@ -541,6 +546,9 @@ summary(as.glmm3)
 mean_by_site(as.np.biomass.station, "no", "b")
 baci.plot(as.np.biomass.baci, "b")
 
+## create CIs ----
+tab.ci(as.glmm3, "as")
+
 
 # ASYOY ----
 ## Cote approach
@@ -665,6 +673,8 @@ summary(asyoy.glmm2)
 mean_by_site(asyoy.np.biomass.station, "no", "b")
 baci.plot(asyoy.np.biomass.baci, "b")
 
+## create CIs ----
+tab.ci(asyoy.glmm2, "asyoy")
 
 
 
@@ -745,6 +755,8 @@ summary(btp.glmm2)
 mean_by_site(bt.pl.biomass.station, "yes", "d")
 baci.plot(bt.pl.biomass.baci, "b")
 
+## create CIs ----
+tab.ci(btp.glmm2, "bt_pl")
 
 ### LUNKERS ----
 btl.glmm1 <- glmmTMB(
@@ -809,6 +821,10 @@ testTemporalAutocorrelation(btl.glmm2_simres_recalc_new, time = unique(bt.lu$Yea
 # this seems better
 summary(btl.glmm2_new)
 mean_by_site(bt.lu.biomass.station, "lunker", "d")
+
+## create CIs ----
+tab.ci(btl.glmm2_new, "bt_lu")
+
 
 
 # BTYOY ----
@@ -949,6 +965,11 @@ summary(btyoyp.glmm1_new) # go with this
 mean_by_site(btyoy.pl.biomass.station, "yes", "d")
 ggplot(btyoy.pl, aes(x = Year, y = Biomass_100)) + geom_point()
 
+## create CIs ----
+tab.ci(btyoyp.glmm1_new, "btyoy_pl")
+
+
+
 ### LUNKERS ----
 
 btyoyl.glmm1 <- glmmTMB(
@@ -1030,6 +1051,8 @@ testTemporalAutocorrelation(btyoyl.glmm1_new_simres_recalc, time = unique(bt.lu$
 summary(btyoyl.glmm1_new) # temp resids aren't great - but driven by C3
 mean_by_site(btyoy.lu.biomass.station, "lunker", "d")
 
+## create CIs ----
+tab.ci(btyoyl.glmm1_new, "btyoy_lu")
 
 
 ## AS ----
@@ -1170,6 +1193,8 @@ testTemporalAutocorrelation(asp.glmm2_new_simres_recalc, time = unique(as.pl$Yea
 summary(asp.glmm3)
 mean_by_site(as.pl.biomass.station, "yes", "d")
 
+## create CIs ----
+tab.ci(asp.glmm3, "as_pl")
 
 
 ### LUNKERS ----
@@ -1219,6 +1244,9 @@ testTemporalAutocorrelation(asl.glmm1_simres_recalc, time = unique(bt.lu$Year))
 # spatial autocorrelation is OK.  Tried exploring a model with Year as covariate but all had residual issues.  P is far from alpha so proceed.  
 summary(asl.glmm1)
 mean_by_site(as.lu.biomass.station, "lunker", "d")
+
+## create CIs ----
+tab.ci(asl.glmm1, "as_lu")
 
 
 
@@ -1308,6 +1336,8 @@ mean_by_site(asyoy.pl.biomass.station, "yes", "d")
 baci.plot(asyoy.pl.biomass.baci, "b")
 
 
+## create CIs ----
+tab.ci(asyoyp.glmm2, "asyoy_pl")
 
 
 ### LUNKERS ----
@@ -1385,6 +1415,10 @@ summary(asyoyl.glmm2_new) # go with this - its all driven by one site anyway
 mean_by_site(asyoy.lu.biomass.station, "lunker", "d")
 
 
+## create CIs ----
+tab.ci(asyoyl.glmm2_new, "asyoy_lu")
+
+
 # fading plots ----
 ## riffles ----
 ### see scratch_pad_glm.R for all the rationale and justification for why this works
@@ -1459,7 +1493,14 @@ summary(glmmTMB(Biomass_100~Time,
         REML = TRUE,
         data=bt.pl)
 )
+# back transformed
+bt.pl_fit <- fitted(btp.glmm2, se.fit=T)
 
+# log scale
+bt.pl_pred <- as.data.frame(predict(btp.glmm2, se.fit = T))
+
+# random effect
+bt.pl_rdm <- ranef(btp.glmm2)
 
 # combine fitted and predicted values with the dataframe
 df_bt.pl <- as.data.frame(cbind(bt.pl, bt.pl_fit, bt.pl_pred))
@@ -1482,14 +1523,14 @@ df2_bt.pl <- df_bt.pl |>
 
 png("output/fade_pool_BTbiomass.png", pointsize=10, width=2800, height=2000, res=600)
 plot(as.numeric(as.character(df2_bt.pl$Year)), df2_bt.pl$mean, pch = 16, ylim = c(200, 2000), xlab = "Year", ylab = "Mean Biomass Estimate (g/100 sq. m)")
-lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
+#lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
 # note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
-lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
-lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
-
-yr_1988 <- df_bt.pl$bt.pl_fit[1]
-yr_1989 <- df_bt.pl$bt.pl_fit[8]
-abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+# lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
+# lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
+# 
+# yr_1988 <- df_bt.pl$bt.pl_fit[1]
+# yr_1989 <- df_bt.pl$bt.pl_fit[8]
+# abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
 
 dev.off()
 
