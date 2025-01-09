@@ -151,7 +151,7 @@ ggplot(bt.pl.density.station, aes(as.factor(Station_new), mean)) +
 
 
 ## create CIs ----
-tab.ci(bt_den.glmm1, "bt_den")
+tab.ci(bt_den.glmm1, "bt_den") 
 
 # BTYOY ----
 ## Cote approach
@@ -524,6 +524,7 @@ p <- ggplot(data = as.np, aes(x = Year, y = Density_100)) +
   geom_boxplot() +
   facet_grid(rows= vars(Treatment))
 p # especially on impact sites
+
 # this seems to suggest a real temporal trend in the data so add Year as a numeric variable
 as_den.glmm3_new <- glmmTMB(
   Density_100 ~ Time * Treatment + numYear + (1 | Year),
@@ -1135,7 +1136,7 @@ ggplot(data = as.pl, aes(x = Station_new, y = Density_100)) +
   facet_grid(rows= vars(Habitat))
 
 
-coplot(Density_100 ~ Year | Station_new, as.pl)
+#coplot(Density_100 ~ Year | Station_new, as.pl)
 
 asp_den.glmm2 <- glmmTMB(
   Density_100 ~ Time + (1 | Year),
@@ -1169,7 +1170,7 @@ anova(asp_den.glmm1, asp_den.glmm3)
 asp_den.glmm1_simres <- simulateResiduals(asp_den.glmm3)
 plot(asp_den.glmm1_simres)
 # The normality is fine but homogeneity is not great.
-coplot(Density_100 ~ Year | Station_new, as.pl)
+#coplot(Density_100 ~ Year | Station_new, as.pl)
 
 temp <- cbind(as.pl, resids = residuals(asp_den.glmm3))
 coplot(resids ~ Year | Station_new ,temp)
@@ -1198,7 +1199,7 @@ mean_by_site(as.pl.density.station, "yes", z = "d")
 
 
 ## create CIs ----
-#tab.ci(asp_den.glmm3, "as_pl_den")
+#tab.ci(asp_den.glmm3, "as_pl_den") # this is causing the computer to freeze - commenting out
 
 
 ### LUNKERS ----
