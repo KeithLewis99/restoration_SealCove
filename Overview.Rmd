@@ -196,7 +196,25 @@ Column
 
 ### Biomass
 
-```{r, echo=F}
+```{r, echo=FALSE}
+kbl(bt_ci[1:4, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: BT Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(bt_pl_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: BT Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(bt_lu_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: BT Biomass CIs", digits = 3 ) |>
+  kable_paper()
 ```
 
 BTYOY {data-navmenu="Summary_CI"}
@@ -215,12 +233,45 @@ kbl(btyoy_den_ci[1:5, c(2, 5, 3:4)],
   kable_paper()
 ```
 
+```{r, echo=FALSE}
+kbl(btyoy_pl_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: BTYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(btyoy_lu_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: BTYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+
 Column
 -----------------------------------------------------------------------
 
 ### Biomass
 
-```{r, echo=F}
+```{r, echo=FALSE}
+kbl(btyoy_ci[1:4, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: BTYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(btyoy_pl_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: BTYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(btyoy_lu_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: BTYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
 ```
 
 
@@ -240,12 +291,45 @@ kbl(as_den_ci[1:5, c(2, 5, 3:4)],
   kable_paper()
 ```
 
+```{r, echo=FALSE}
+kbl(as_pl_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: AS density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(as_lu_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: AS density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+
 Column
 -----------------------------------------------------------------------
 
 ### Biomass
 
-```{r, echo=F}
+```{r, echo=FALSE}
+kbl(as_ci[1:4, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: AS Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(as_pl_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: AS Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(as_lu_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: AS Biomass CIs", digits = 3 ) |>
+  kable_paper()
 ```
 
 
@@ -265,14 +349,45 @@ kbl(asyoy_den_ci[1:5, c(2, 5, 3:4)],
   kable_paper()
 ```
 
+```{r, echo=FALSE}
+kbl(asyoy_pl_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: ASYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(asyoy_lu_den_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: ASYOY density CIs", digits = 3 ) |>
+  kable_paper()
+```
+
 Column
 -----------------------------------------------------------------------
 
 ### Biomass
 
-```{r, echo=F}
+```{r, echo=FALSE}
+kbl(asyoy_ci[1:4, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "not pool: ASYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
 ```
 
+```{r, echo=FALSE}
+kbl(asyoy_pl_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "pool: ASYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
+
+```{r, echo=FALSE}
+kbl(asyoy_lu_ci[1:2, c(2, 5, 3:4)], 
+    col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
+    align = 'c', caption = "LUNKERS: ASYOY Biomass CIs", digits = 3 ) |>
+  kable_paper()
+```
 <!-- LUNKERS -->
 
 Density {data-navmenu="Lunkers"}
