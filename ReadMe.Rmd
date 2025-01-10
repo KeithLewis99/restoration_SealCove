@@ -336,6 +336,29 @@ According to ChatGPT (I could find nothing on Google, you just have to take the 
 
 But I get a curious result ito the models with numYear.  What happens is that the intercept goes to zero and then you need the year (fixed and random) to get to a value that makes sense.  This value is then modified by the parameter estimates for the rest of the fixed terms (treat*time).  I replicated this using code in scratch_pad_variance.R and get the same result even when using Tweedie distribution.  The problem that I had is that the fitted values are probably not all that close to the actual values, i.e., these models aren't great.    But proceed with reporting the CIs for the parameter estimates.
 
+# A note on natural logarithms and presenting results
+So, natural logarithms are an approximation of percent change when the values are small.  There are times when its preferable to use logs on their own over percent change but I think that we biologist types prefer to use percent change as its more intuitive.  So I think that, while the logarithmic approximation is useful and good to know, i'll do the conversions to show the actual change when the parameter estimate doesn't overlap 0.  
+
+Also, i'm pretty sure that the parameter estimates, which are the change from the reference (Intercept = Control:After) is an approximation of this percent change so that gives some rough guidance.
+
+These are a few handy web pages:  
+https://betterexplained.com/articles/demystifying-the-natural-logarithm-ln/  
+https://stats.stackexchange.com/questions/27682/what-is-the-reason-why-we-use-natural-logarithm-ln-rather-than-log-to-base-10
+https://stats.stackexchange.com/questions/521180/percentage-change-vs-log-change-in-a-repeated-measures-or-time-series-analysis
+https://people.duke.edu/~rnau/411log.htm
+https://stats.stackexchange.com/questions/488691/why-can-i-interpret-a-log-transformed-dependent-variable-in-terms-of-percent-cha
+
+See below for an example using BT Density in non-pools - Intercept + Time
+```{r, echo=TRUE}
+# Intercept
+exp(2.548)
+# Intercept + Time
+exp(2.548 + 0.370)
+# Percent change with Back-transformed values
+(exp(2.548 + 0.370) - exp(2.548))/exp(2.548 + 0.370)
+# values are 0.37 ~ 0.38  and for percent change: 0.37*100 ~ 0.38*100
+```
+
 # Meeting for early May with Clarke and Kristin
 
 
