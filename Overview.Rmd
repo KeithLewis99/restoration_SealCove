@@ -254,7 +254,7 @@ Column
 ### Biomass
 
 ```{r, echo=FALSE}
-kbl(btyoy_ci[1:4, c(2, 5, 3:4)], 
+kbl(btyoy_ci[1:5, c(2, 5, 3:4)], 
     col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
     align = 'c', caption = "not pool: BTYOY Biomass CIs", digits = 3 ) |>
   kable_paper()
@@ -343,7 +343,7 @@ Column
 ### Density
 
 ```{r, echo=FALSE}
-kbl(asyoy_den_ci[1:5, c(2, 5, 3:4)], 
+kbl(asyoy_den_ci[1:4, c(2, 5, 3:4)], 
     col.names = c('parm', 'Estimate', '2.5%', '97.5%'),
     align = 'c', caption = "not pool: ASYOY density CIs", digits = 3 ) |>
   kable_paper()
