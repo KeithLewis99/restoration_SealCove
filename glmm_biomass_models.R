@@ -138,6 +138,11 @@ baci.plot(bt.np.biomass.baci, "b")
 ## create CIs ----
 tab.ci(bt.glmm1, "bt")
 
+tmp <- confint(bt.glmm1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
 
 # BTYOY ----
 ## Cote approach
@@ -416,6 +421,11 @@ baci.plot(btyoy.np.biomass.baci, "b")
 ## create CIs ----
 tab.ci(btyoy.glmm4_new, "btyoy")
 
+tmp <- confint(btyoy.glmm4_new)
+
+# percent increase for Treatment
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
 
 # AS ----
 ## Cote approach
@@ -549,6 +559,14 @@ baci.plot(as.np.biomass.baci, "b")
 ## create CIs ----
 tab.ci(as.glmm3, "as")
 
+tmp <- confint(as.glmm3)
+
+# percent increase
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
+
+
 
 # ASYOY ----
 ## Cote approach
@@ -676,6 +694,11 @@ baci.plot(asyoy.np.biomass.baci, "b")
 ## create CIs ----
 tab.ci(asyoy.glmm2, "asyoy")
 
+tmp <- confint(asyoy.glmm2)
+
+# percent increase
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
 
 
 # **POOLS ----
@@ -752,11 +775,17 @@ testTemporalAutocorrelation(btp.glmm2_simres_recalc, time = unique(bt.pl$Year))
 
 # can't really say much with 4 pools but dosn't appear to be clustering - proceed with btp.glmm2
 summary(btp.glmm2)
-mean_by_site(bt.pl.biomass.station, "yes", "d")
+mean_by_site(bt.pl.biomass.station, "yes", "b")
 baci.plot(bt.pl.biomass.baci, "b")
 
 ## create CIs ----
 tab.ci(btp.glmm2, "bt_pl")
+tmp <- confint(btp.glmm2)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 ### LUNKERS ----
 btl.glmm1 <- glmmTMB(
@@ -820,10 +849,15 @@ testTemporalAutocorrelation(btl.glmm2_simres_recalc_new, time = unique(bt.lu$Yea
 
 # this seems better
 summary(btl.glmm2_new)
-mean_by_site(bt.lu.biomass.station, "lunker", "d")
+mean_by_site(bt.lu.biomass.station, "lunker", "b")
 
 ## create CIs ----
 tab.ci(btl.glmm2_new, "bt_lu")
+
+tmp <- confint(btl.glmm2_new)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 
@@ -962,11 +996,16 @@ testTemporalAutocorrelation(btyoyp.glmm1_new_simres_recalc, time = unique(btyoy.
 # 
 summary(btyoyp.glmm1_new) # go with this
 #summary(btyoyp.glmm0) # temp resids aren't great
-mean_by_site(btyoy.pl.biomass.station, "yes", "d")
+mean_by_site(btyoy.pl.biomass.station, "yes", "b")
 ggplot(btyoy.pl, aes(x = Year, y = Biomass_100)) + geom_point()
 
 ## create CIs ----
 tab.ci(btyoyp.glmm1_new, "btyoy_pl")
+
+tmp <- confint(btyoyp.glmm1_new)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 
@@ -1049,10 +1088,15 @@ testTemporalAutocorrelation(btyoyl.glmm1_new_simres_recalc, time = unique(bt.lu$
 
 # these are much better - proceed with this model
 summary(btyoyl.glmm1_new) # temp resids aren't great - but driven by C3
-mean_by_site(btyoy.lu.biomass.station, "lunker", "d")
+mean_by_site(btyoy.lu.biomass.station, "lunker", "b")
 
 ## create CIs ----
 tab.ci(btyoyl.glmm1_new, "btyoy_lu")
+
+tmp <- confint(btyoyl.glmm1_new)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 ## AS ----
@@ -1191,10 +1235,13 @@ testTemporalAutocorrelation(asp.glmm2_new_simres_recalc, time = unique(as.pl$Yea
 
 # The change in the model makes some difference with temporal resids but makes other plots worse.  But this is no where near signficant so proceed with original
 summary(asp.glmm3)
-mean_by_site(as.pl.biomass.station, "yes", "d")
+mean_by_site(as.pl.biomass.station, "yes", "b")
 
 ## create CIs ----
 tab.ci(asp.glmm3, "as_pl")
+
+tmp <- confint(asp.glmm3)
+
 
 
 ### LUNKERS ----
@@ -1243,10 +1290,15 @@ testTemporalAutocorrelation(asl.glmm1_simres_recalc, time = unique(bt.lu$Year))
 
 # spatial autocorrelation is OK.  Tried exploring a model with Year as covariate but all had residual issues.  P is far from alpha so proceed.  
 summary(asl.glmm1)
-mean_by_site(as.lu.biomass.station, "lunker", "d")
+mean_by_site(as.lu.biomass.station, "lunker", "b")
 
 ## create CIs ----
 tab.ci(asl.glmm1, "as_lu")
+
+tmp <- confint(btyoyp_den.glmm1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 
@@ -1332,12 +1384,17 @@ testTemporalAutocorrelation(asyoyp.glmm2_simres_recalc, time = unique(asyoy.pl$Y
 # spatial autocorrelation is OK but other diagnostics aren't great.  
 ### Tried using year as a covariate but it didn't help. P-value far from alpha so proceed with 
 summary(asyoyp.glmm2)
-mean_by_site(asyoy.pl.biomass.station, "yes", "d")
+mean_by_site(asyoy.pl.biomass.station, "yes", "b")
 baci.plot(asyoy.pl.biomass.baci, "b")
 
 
 ## create CIs ----
 tab.ci(asyoyp.glmm2, "asyoy_pl")
+
+tmp <- confint(asyoyp.glmm2)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 ### LUNKERS ----
@@ -1412,11 +1469,16 @@ testTemporalAutocorrelation(asyoyl.glmm2_new_simres_recalc, time = unique(as.lu$
 
 summary(asyoyl.glmm2)
 summary(asyoyl.glmm2_new) # go with this - its all driven by one site anyway
-mean_by_site(asyoy.lu.biomass.station, "lunker", "d")
+mean_by_site(asyoy.lu.biomass.station, "lunker", "b")
 
 
 ## create CIs ----
 tab.ci(asyoyl.glmm2_new, "asyoy_lu")
+
+tmp <- confint(asyoyl.glmm2_new)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 # fading plots ----

@@ -15,8 +15,8 @@ library(sf)
 library(ggplot2)
 
 
-
-# BT ----
+# riffles ----
+## BT ----
 # ## glm ----
 # # Cote approach - biomass pooled
 # BT1_den.glm.not.pool.full <- glm(Density_100~Time*Treatment, family=Gamma(link=log), data=bt.np)
@@ -152,6 +152,12 @@ ggplot(bt.pl.density.station, aes(as.factor(Station_new), mean)) +
 
 ## create CIs ----
 tab.ci(bt_den.glmm1, "bt_den") 
+
+tmp <- confint(bt_den.glmm1)
+(exp(tmp[1,3] + tmp[3,3]))/exp(tmp[1,3])*100
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 # BTYOY ----
 ## Cote approach
@@ -411,6 +417,30 @@ ggplot(btyoy.np, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
 tab.ci(btyoy.glmm4_optim, "btyoy_den")
+tmp <- confint(btyoy.glmm4_optim)
+
+# tested whether using numYear made a difference when calculating the percent change - it appears that they do not. I was worried about this because (see ReadMe for greater detail) including numYear massively changes the Intercept term and does this affect the percent change?  I calculated the mean value 
+year <- as.data.frame(unique(btyoy.np$Year))
+colnames(year) <- "year"
+year$year <- as.numeric(as.character(year$year))
+
+yearB <- mean(tmp[4,3]*year$year[1:3])
+yearA <- mean(tmp[4,3]*year$year[4:11])
+
+# just parm for TIME
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+# average value of Before is exact same as above
+(exp(tmp[1,3] + tmp[2,3] + yearB)-exp(tmp[1,3] + yearB))/exp(tmp[1,3] + yearB)*100
+# as is this with just one year - so clearly, the numYears cancel each other out
+(exp(tmp[1,3] + tmp[4,3]*1990 + tmp[2,3]) - exp(tmp[1,3] + tmp[4,3]*1990))/exp(tmp[1,3]+ tmp[4,3]*1990)*100
+
+# Treatment
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+# test against simpler model and results are close enough to be getting on with
+tmp1 <- confint(btyoy.glmm3a)
+((exp(tmp1[1,3] + tmp1[2,3]))-exp(tmp1[1,3]))/exp(tmp1[1,3])*100
+((exp(tmp1[1,3] + tmp1[3,3]))-exp(tmp1[1,3]))/exp(tmp1[1,3])*100
 
 
 
@@ -572,10 +602,11 @@ baci.plot(as.np.density.baci, "d")
 
 ## create CIs ----
 tab.ci(as_den.glmm3_new, "as_den")
+tmp <- confint(as_den.glmm3_new)
 
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
-
-# ASYOY ----
+## ASYOY ----
 ## resids in Cote analysis aren't bad but can we improve them?
 # ASYOY1_den.glm.not.pool.full <- glm(mean~Time*Treatment, family=Gamma(link=log), data= ASYOYdensitybyhabitat.not.pool)
 # summary(ASYOY1_den.glm.not.pool.full)
@@ -709,8 +740,11 @@ temp1 <- asyoy.np |>
 ## create CIs ----
 tab.ci(asyoy_den.glmm1, "asyoy_den")
 
+tmp <- confint(asyoy_den.glmm1)
+((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+((exp(tmp[1,3] + tmp[2,3] + tmp[3,3] + tmp[4,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
-
+# POOLS ----
 # POOLS ----
 ## data ----
 ### create data sets for all species
@@ -791,6 +825,12 @@ mean_by_site(bt.pl.density.station, "yes", "d")
 
 ## create CIs ----
 tab.ci(btp_den.glmm2, "bt_pl_den")
+tmp <- confint(btp_den.glmm2)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 ### LUNKERS ----
 btl_den.glmm1 <- glmmTMB(
@@ -849,6 +889,13 @@ mean_by_site(bt.lu.density.station, "lunker", "d")
 
 ## create CIs ----
 tab.ci(btl_den.glmm1, "bt_lu_den")
+tmp <- confint(btl_den.glmm1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+22*1.85
+
+
 
 
 # BTYOY ----
@@ -984,6 +1031,11 @@ ggplot(btyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
 tab.ci(btyoyp_den.glmm1, "btyoy_pl_den")
+tmp <- confint(btyoyp_den.glmm1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
 
 
 ## LUNKERS ----
@@ -1083,6 +1135,12 @@ ggplot(btyoy.lu, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
 tab.ci(btyoyl_den.glmm_new1, "btyoy_lu_den")
+tmp <- confint(btyoyl_den.glmm_new1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 
 # AS ----
@@ -1108,7 +1166,7 @@ tab.ci(btyoyl_den.glmm_new1, "btyoy_lu_den")
 
 
 ### glmm ----
-#### Gamma is OK here because there are no zeros
+#### lots of zeros so use ziGamma
 
 asp_den.glmm1 <- glmmTMB(Density_100 ~ Time + (1|Year), # adding year doesn't help resids!
                          dispformula = ~ Time,
@@ -1162,7 +1220,7 @@ asp_den.glmm3 <- glmmTMB(
 summary(asp_den.glmm3)
 
 
-anova(asp_den.glmm1, asp_den.glmm2) # this suggests that the model without dispersion is a smidge better - asp_den.glmm1 plus diagnostics for asp_den.glmm2 look awful; asp_den.glmm1 is slightly better than Tweedie without dispersion formula and diagnostics are awful.  Tweedie with dispersion  is slightly better than asp_den.glmm1, diagnostics are fine and it all makes sense ito output.
+anova(asp_den.glmm1, asp_den.glmm2) # this suggests that the model with dispersion is a smidge better - asp_den.glmm1 plus diagnostics for asp_den.glmm2 look awful; asp_den.glmm1 is slightly better than Tweedie without dispersion formula and diagnostics are awful.  Tweedie with dispersion  is slightly better than asp_den.glmm1, diagnostics are fine and it all makes sense ito output.
 anova(asp_den.glmm1, asp_den.glmm3)
 
 
@@ -1197,9 +1255,16 @@ summary(asp_den.glmm3)
 mean_by_site(as.pl.density.station, "yes", z = "d")
 #ggplot(as.pl, aes(x = Year, y = Density_100)) + geom_point()
 
-
 ## create CIs ----
-#tab.ci(asp_den.glmm3, "as_pl_den") # this is causing the computer to freeze - commenting out
+#tab.ci(asp_den.glmm3, "as_pl_den") # this is causing the computer to freeze - commenting out - I can get the confint for asp_den.glmm1 & 2 no problem
+
+# Dave and Paul advised using debug to see where the problem was.  It fronze up with a simple rbind on L123 - not sure why but I just extracted the confint within the bebug function and pasted it into the csv file, as_pl_den.csv
+debug(confint) 
+confint(asp_den.glmm3)
+
+
+
+
 
 
 ### LUNKERS ----
@@ -1254,6 +1319,13 @@ mean_by_site(as.lu.density.station, "lunker", "d")
 
 ## create CIs ----
 tab.ci(asl_den.glmm1, "as_lu_den")
+tmp <- confint(asl_den.glmm1)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
+
 
 # ASYOY ----
 # using all the data
@@ -1383,6 +1455,11 @@ ggplot(asyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
 tab.ci(asyoyp_den.glmm4, "asyoy_pl_den")
+tmp <- confint(asyoyp_den.glmm4)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
 
 
 ### LUNKERS ----
@@ -1441,6 +1518,12 @@ mean_by_site(asyoy.lu.density.station, "lunker", "d")
 
 ## create CIs ----
 tab.ci(asyoyl_den.glmm2, "asyoy_lu_den")
+tmp <- confint(asyoyl_den.glmm2)
+
+# percent increase
+((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 
 # fading plots ----
