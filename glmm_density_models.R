@@ -154,6 +154,7 @@ ggplot(bt.pl.density.station, aes(as.factor(Station_new), mean)) +
 tab.ci(bt_den.glmm1, "bt_den") 
 
 tmp <- confint(bt_den.glmm1)
+tmp[, c(3, 1:2)]
 (exp(tmp[1,3] + tmp[3,3]))/exp(tmp[1,3])*100
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -418,6 +419,7 @@ ggplot(btyoy.np, aes(x = Year, y = Density_100)) + geom_point()
 ## create CIs ----
 tab.ci(btyoy.glmm4_optim, "btyoy_den")
 tmp <- confint(btyoy.glmm4_optim)
+tmp[1:5, c(3, 1:2)]
 
 # tested whether using numYear made a difference when calculating the percent change - it appears that they do not. I was worried about this because (see ReadMe for greater detail) including numYear massively changes the Intercept term and does this affect the percent change?  I calculated the mean value 
 year <- as.data.frame(unique(btyoy.np$Year))
@@ -603,7 +605,7 @@ baci.plot(as.np.density.baci, "d")
 ## create CIs ----
 tab.ci(as_den.glmm3_new, "as_den")
 tmp <- confint(as_den.glmm3_new)
-
+tmp[, c(3, 1:2)]
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 ## ASYOY ----
@@ -741,7 +743,10 @@ temp1 <- asyoy.np |>
 tab.ci(asyoy_den.glmm1, "asyoy_den")
 
 tmp <- confint(asyoy_den.glmm1)
+tmp[1:5, c(3, 1:2)]
+# TRT
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+# Int
 ((exp(tmp[1,3] + tmp[2,3] + tmp[3,3] + tmp[4,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 # POOLS ----
@@ -826,7 +831,7 @@ mean_by_site(bt.pl.density.station, "yes", "d")
 ## create CIs ----
 tab.ci(btp_den.glmm2, "bt_pl_den")
 tmp <- confint(btp_den.glmm2)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -890,7 +895,7 @@ mean_by_site(bt.lu.density.station, "lunker", "d")
 ## create CIs ----
 tab.ci(btl_den.glmm1, "bt_lu_den")
 tmp <- confint(btl_den.glmm1)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 22*1.85
@@ -1032,7 +1037,7 @@ ggplot(btyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 ## create CIs ----
 tab.ci(btyoyp_den.glmm1, "btyoy_pl_den")
 tmp <- confint(btyoyp_den.glmm1)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -1136,6 +1141,7 @@ ggplot(btyoy.lu, aes(x = Year, y = Density_100)) + geom_point()
 ## create CIs ----
 tab.ci(btyoyl_den.glmm_new1, "btyoy_lu_den")
 tmp <- confint(btyoyl_den.glmm_new1)
+tmp[1:2, c(3, 1:2)]
 
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
@@ -1256,11 +1262,11 @@ mean_by_site(as.pl.density.station, "yes", z = "d")
 #ggplot(as.pl, aes(x = Year, y = Density_100)) + geom_point()
 
 ## create CIs ----
-#tab.ci(asp_den.glmm3, "as_pl_den") # this is causing the computer to freeze - commenting out - I can get the confint for asp_den.glmm1 & 2 no problem
+# tab.ci(asp_den.glmm3, "as_pl_den") # this is causing the computer to freeze - commenting out - I can get the confint for asp_den.glmm1 & 2 no problem
 
 # Dave and Paul advised using debug to see where the problem was.  It fronze up with a simple rbind on L123 - not sure why but I just extracted the confint within the bebug function and pasted it into the csv file, as_pl_den.csv
-debug(confint) 
-confint(asp_den.glmm3)
+# debug(confint) 
+# confint(asp_den.glmm3)
 
 
 
@@ -1320,7 +1326,7 @@ mean_by_site(as.lu.density.station, "lunker", "d")
 ## create CIs ----
 tab.ci(asl_den.glmm1, "as_lu_den")
 tmp <- confint(asl_den.glmm1)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -1456,8 +1462,8 @@ ggplot(asyoy.pl, aes(x = Year, y = Density_100)) + geom_point()
 ## create CIs ----
 tab.ci(asyoyp_den.glmm4, "asyoy_pl_den")
 tmp <- confint(asyoyp_den.glmm4)
-
-# percent increase
+tmp[1:2, c(3, 1:2)]
+# percent increase - included only because differences appear very large but numYear must be soaking up a lot of variance and CIs bound zero.
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
@@ -1519,6 +1525,7 @@ mean_by_site(asyoy.lu.density.station, "lunker", "d")
 ## create CIs ----
 tab.ci(asyoyl_den.glmm2, "asyoy_lu_den")
 tmp <- confint(asyoyl_den.glmm2)
+tmp[1:2, c(3, 1:2)]
 
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100

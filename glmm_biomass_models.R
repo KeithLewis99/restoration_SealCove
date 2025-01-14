@@ -139,7 +139,7 @@ baci.plot(bt.np.biomass.baci, "b")
 tab.ci(bt.glmm1, "bt")
 
 tmp <- confint(bt.glmm1)
-
+tmp[1:5, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -422,6 +422,7 @@ baci.plot(btyoy.np.biomass.baci, "b")
 tab.ci(btyoy.glmm4_new, "btyoy")
 
 tmp <- confint(btyoy.glmm4_new)
+tmp[1:5, c(3, 1:2)]
 
 # percent increase for Treatment
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
@@ -560,6 +561,7 @@ baci.plot(as.np.biomass.baci, "b")
 tab.ci(as.glmm3, "as")
 
 tmp <- confint(as.glmm3)
+tmp[, c(3, 1:2)]
 
 # percent increase
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
@@ -695,7 +697,7 @@ baci.plot(asyoy.np.biomass.baci, "b")
 tab.ci(asyoy.glmm2, "asyoy")
 
 tmp <- confint(asyoy.glmm2)
-
+tmp[1:5, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -781,7 +783,7 @@ baci.plot(bt.pl.biomass.baci, "b")
 ## create CIs ----
 tab.ci(btp.glmm2, "bt_pl")
 tmp <- confint(btp.glmm2)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -855,7 +857,7 @@ mean_by_site(bt.lu.biomass.station, "lunker", "b")
 tab.ci(btl.glmm2_new, "bt_lu")
 
 tmp <- confint(btl.glmm2_new)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -1003,7 +1005,7 @@ ggplot(btyoy.pl, aes(x = Year, y = Biomass_100)) + geom_point()
 tab.ci(btyoyp.glmm1_new, "btyoy_pl")
 
 tmp <- confint(btyoyp.glmm1_new)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -1094,7 +1096,7 @@ mean_by_site(btyoy.lu.biomass.station, "lunker", "b")
 tab.ci(btyoyl.glmm1_new, "btyoy_lu")
 
 tmp <- confint(btyoyl.glmm1_new)
-
+tmp[1:2, c(3, 1:2)]
 # percent increase
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
@@ -1241,7 +1243,7 @@ mean_by_site(as.pl.biomass.station, "yes", "b")
 tab.ci(asp.glmm3, "as_pl")
 
 tmp <- confint(asp.glmm3)
-
+tmp[1:2, c(3, 1:2)]
 
 
 ### LUNKERS ----
@@ -1295,10 +1297,9 @@ mean_by_site(as.lu.biomass.station, "lunker", "b")
 ## create CIs ----
 tab.ci(asl.glmm1, "as_lu")
 
-tmp <- confint(btyoyp_den.glmm1)
-
+tmp <- confint(asl.glmm1)
+tmp[1:2, c(3, 1:2)]
 # percent increase
-((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 
@@ -1392,8 +1393,8 @@ baci.plot(asyoy.pl.biomass.baci, "b")
 tab.ci(asyoyp.glmm2, "asyoy_pl")
 
 tmp <- confint(asyoyp.glmm2)
-
-# percent increase
+tmp[1:2, c(3, 1:2)]
+# percent increase - included only because differences appear very large but numYear must be soaking up a lot of variance and CIs bound zero.
 ((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
@@ -1476,9 +1477,8 @@ mean_by_site(asyoy.lu.biomass.station, "lunker", "b")
 tab.ci(asyoyl.glmm2_new, "asyoy_lu")
 
 tmp <- confint(asyoyl.glmm2_new)
+tmp[1:2, c(3, 1:2)]
 
-# percent increase
-((exp(tmp[1,3] + tmp[2,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
 
 # fading plots ----
