@@ -1,0 +1,53 @@
+---
+title: "Percent Change"
+format: html
+editor: visual
+---
+
+## Introduction
+
+Percent change has been a real thorn in my side and it has taken a lot of time to figure it out. So, i'm making this short presentation to describe what i've been through so that I don't forget it.
+
+First, there are a different ways to look at differences in percents.
+
+-   Percentage points are the arithmetic differences between two percentage points
+
+## Basic
+
+$$
+\%\Delta = \frac{(Final value - initial value)}{initial value} *100
+$$
+
+## Parameters and logarithms
+
+When doing this with linear models, you are just looking to see if the slope (or mean, $\beta_{1}$ ) differs from the intercept $\beta_{0}$. Therefore, the percent change is:
+
+$$
+\%\Delta = \frac{(e^{\beta_{0} + \beta_{1}} - e^{\beta_{0}})} {e^{\beta_{0}}} *100
+$$
+
+By the properties of logarithms, this can change to:
+
+$$
+\%\Delta = \frac{(e^{\beta_{0}\beta_{1}} - e^{\beta_{0}})} {e^{\beta_{0}}} *100
+$$
+
+which, by substitution becomes :
+
+$$
+= \frac{e^{\beta_{0}}(e^{\beta_{1}} - 1)} {e^{\beta_{0}}} *100
+$$
+
+and conveniently reduces to:
+
+$$
+\%\Delta = (e^{\beta_{1}} - 1) * 100
+$$
+
+## Parameters and zero-inflated models
+
+The problem here is that the hurdle model needs to take all the zeros into account because gamma distributions are positive values only and I can't think of another distribution that would do a good job of modelling these data. Package emmeans calculates the values....
+
+$$
+\%\Delta = \frac{(Final value - initial value)}{initial value}
+$$
