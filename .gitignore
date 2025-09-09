@@ -11,8 +11,13 @@
 *.xlsx
 *.html
 
+test*
+ReadMe.qmd
 scratch*.R
 volcano.R
+percent_change_chatgpt.qmd
+model_predictions_plot.R
+
 archive/
 CS_Estimates/
 output/
@@ -20,3 +25,5 @@ pics/
 R Files/
 Raw data/
 ReadMe_files/
+demo_percent_change_files/
+percent_change_chatgpt_files/
