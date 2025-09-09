@@ -158,6 +158,9 @@ tmp[, c(3, 1:2)]
 (exp(tmp[1,3] + tmp[3,3]))/exp(tmp[1,3])*100
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
 
+(exp(tmp[3,3]) -1)*100
+
+
 
 
 # BTYOY ----
@@ -607,6 +610,8 @@ tab.ci(as_den.glmm3_new, "as_den")
 tmp <- confint(as_den.glmm3_new)
 tmp[, c(3, 1:2)]
 ((exp(tmp[1,3] + tmp[3,3]))-exp(tmp[1,3]))/exp(tmp[1,3])*100
+
+
 
 ## ASYOY ----
 ## resids in Cote analysis aren't bad but can we improve them?

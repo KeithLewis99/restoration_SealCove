@@ -1517,7 +1517,7 @@ png("output/fade_np_BTbiomass.png", pointsize=10, width=2800, height=2000, res=6
 
 plot(as.numeric(as.character(df2_bt.np$Year)), df2_bt.np$mean, 
      pch = 16, ylim = c(200, 800), 
-     xlab = "Year", ylab = "Mean Biomass Estimate (g/100 sq. m)")
+     xlab = "Year", ylab = "Biomass Estimate (g/100 sq. m)")
 
 lines(as.numeric(as.character(df2_bt.np$Year)), 
       exp(df2_bt.np$fit), col="black")
@@ -1584,15 +1584,15 @@ df2_bt.pl <- df_bt.pl |>
 # plot with predicted line, and confidence intervals and predicted value for the Before:impact period
 
 png("output/fade_pool_BTbiomass.png", pointsize=10, width=2800, height=2000, res=600)
-plot(as.numeric(as.character(df2_bt.pl$Year)), df2_bt.pl$mean, pch = 16, ylim = c(200, 2000), xlab = "Year", ylab = "Mean Biomass Estimate (g/100 sq. m)")
-#lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
+plot(as.numeric(as.character(df2_bt.pl$Year)), df2_bt.pl$mean, pch = 16, ylim = c(200, 2000), xlab = "Year", ylab = "Biomass Estimate (g/100 sq. m)")
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit), col="black")
 # note that i'm not 100% sure if this is calculated correctly as i've just taken the value of se as an average.  There may be some delta method approach involved.
-# lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
-# lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
+ lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit+1.96*df2_bt.pl$se), col="black", lty=2)
+lines(as.numeric(as.character(df2_bt.pl$Year)), exp(df2_bt.pl$fit-1.96*df2_bt.pl$se), col="black", lty=2)
 # 
-# yr_1988 <- df_bt.pl$bt.pl_fit[1]
-# yr_1989 <- df_bt.pl$bt.pl_fit[8]
-# abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
+ yr_1988 <- df_bt.pl$bt.pl_fit[1]
+yr_1989 <- df_bt.pl$bt.pl_fit[8]
+ abline(a=(yr_1988 + yr_1989)/2, b=0,col="blue")
 
 dev.off()
 
