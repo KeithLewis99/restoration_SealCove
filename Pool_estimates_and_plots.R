@@ -1,7 +1,7 @@
 
 ######POOLS ONLY
 ###Mean BT Biomass Estimates with Standard Errors 
-SC_BT_Pools_allyears <- read.csv("C:/Users/lewiske/Documents/CAFE/projects/restoration/kristin/CS_Estimates/SC_BT_Pools_allyears.csv")
+SC_BT_Pools_allyears <- read.csv("C:/Users/lewiske/Documents/CAFE/projects/restoration/SealCove/kristin/CS_Estimates/SC_BT_Pools_allyears.csv")
 library(plyr)
 
 BTPoolBio_SC <- ddply(SC_BT_Pools_allyears, c("Year", "Type"), summarise,
@@ -49,7 +49,7 @@ ggplot(BTPoolBio_SC, aes(as.factor(Year), mean, colour=Type)) +
         panel.grid.major=element_blank()) +
   theme(axis.text = element_text(size=14)) +
   theme(axis.title=element_text(size=14)) +
-  ylab("Mean Biomass Estimate (g/100 sq. m)") +
+  ylab("Biomass Estimate (g/100 sq. m)") +
   xlab("Year") 
   
 
@@ -82,7 +82,7 @@ ggplot(BTPoolDen_SC, aes(as.factor(Year), mean, colour=Type)) +
         panel.grid.major=element_blank()) +
   theme(axis.text = element_text(size=14)) +
   theme(axis.title=element_text(size=14)) +
-  ylab("Mean Density Estimate (g/100 sq. m)") +
+  ylab("Density Estimate (g/100 sq. m)") +
   xlab("Year") 
 
 
