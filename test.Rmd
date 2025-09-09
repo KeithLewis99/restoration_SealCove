@@ -1,0 +1,167 @@
+---
+title: "test"
+author: "Keith Lewis"
+date: "2025-01-14"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+temp = list.files(path = "output", pattern=".*_ci.csv$", full.names = T)
+
+# read all files in a folder that match a pattern and name each one
+name_files = function(x) {
+  name = gsub(".*output/", "", x)
+  name = gsub("_ci.csv", "", paste0(name, "_ci"))
+  return(name)
+}
+
+# create a list of dataframes, change the subscript to a name, extract as dataframes
+ls_sc_ci = (lapply(temp, read.csv))
+names(ls_sc_ci) <- name_files(temp)
+list2env(ls_sc_ci, envir = .GlobalEnv)
+
+
+
+library(kableExtra)
+
+## riffles ----
+bt_den_ci$species <- "BT"
+btyoy_den_ci$species <- "BTYOY"
+as_den_ci$species <- "AS"
+asyoy_den_ci$species <- "ASYOY"
+
+
+np_den <- rbind(bt_den_ci[1:4,-7], btyoy_den_ci[1:5,-7], as_den_ci[1:5,], asyoy_den_ci[1:4,])
+
+np_den$parm <- ifelse(np_den$parm == "(Intercept)", "cond.(Intercept)", np_den$parm)
+np_den$parm <- ifelse(np_den$parm == "TimeBefore", "cond.TimeBefore", np_den$parm)
+np_den$parm <- ifelse(np_den$parm == "TreatmentImpact", "cond.TreatmentImpact", np_den$parm)
+
+
+# rbind the biomass dataframes
+bt_ci$species <- "BT"
+btyoy_ci$species <- "BTYOY"
+as_ci$species <- "AS"
+asyoy_ci$species <- "ASYOY"
+
+np_bio <- rbind(bt_ci[1:4,], btyoy_ci[1:5,], as_ci[1:4,], asyoy_ci[1:4,])
+
+np_bio$parm <- ifelse(np_bio$parm == "(Intercept)", "cond.(Intercept)", np_bio$parm)
+np_bio$parm <- ifelse(np_bio$parm == "TimeBefore", "cond.TimeBefore", np_bio$parm)
+np_bio$parm <- ifelse(np_bio$parm == "TreatmentImpact", "cond.TreatmentImpact", np_bio$parm)
+
+#combine all riffles
+np_all <- dplyr::left_join(np_den, np_bio, by = c("species", "parm"))
+np_all <- np_all[, c(6, 2, 5, 3:4, 10, 8:9)]
+
+
+
+## pools ----
+bt_pl_den_ci$species <- "BT"
+btyoy_pl_den_ci$species <- "BTYOY"
+as_pl_den_ci$species <- "AS"
+asyoy_pl_den_ci$species <- "ASYOY"
+colnames(as_pl_den_ci)[3] <- "X2.5."
+colnames(as_pl_den_ci)[4] <- "X97.5."
+
+
+pl_den <- rbind(bt_pl_den_ci[1:2,], btyoy_pl_den_ci[1:2,], as_pl_den_ci[1:2,], asyoy_pl_den_ci[1:2,])
+pl_den$parm <- ifelse(pl_den$parm == "(Intercept)", "cond.(Intercept)", pl_den$parm)
+pl_den$parm <- ifelse(pl_den$parm == "TimeBefore", "cond.TimeBefore", pl_den$parm)
+pl_den
+
+
+# rbind the biomass dataframes
+bt_pl_ci$species <- "BT"
+btyoy_pl_ci$species <- "BTYOY"
+as_pl_ci$species <- "AS"
+asyoy_pl_ci$species <- "ASYOY"
+
+pl_bio <- rbind(bt_pl_ci[1:2,], btyoy_pl_ci[1:2,], as_pl_ci[1:2,], asyoy_pl_ci[1:2,])
+pl_bio$parm <- ifelse(pl_bio$parm == "(Intercept)", "cond.(Intercept)", pl_bio$parm)
+pl_bio$parm <- ifelse(pl_bio$parm == "TimeBefore", "cond.TimeBefore", pl_bio$parm)
+
+
+# cbind both frames
+library(dplyr)
+pl_all <- left_join(pl_den, pl_bio, by = c("species", "parm"))
+pl_all <- pl_all[, c(6, 2, 5, 3:4, 10, 8:9)]
+str(pl_all)
+#pl_all <- cbind(pl_all[, c(1:2)], round(pl_all[, c(-1, -2)], 3))
+#pl_all[1,3] <- paste0(np_all[1,3], footnote_marker_alphabet(3)) # can add footnotes by adding this to the table
+
+
+# LUNKERS ----
+
+bt_lu_den_ci$species <- "BT"
+btyoy_lu_den_ci$species <- "BTYOY"
+as_lu_den_ci$species <- "AS"
+asyoy_lu_den_ci$species <- "ASYOY"
+
+
+lu_den <- rbind(bt_lu_den_ci[1:2,], btyoy_lu_den_ci[1:2,], as_lu_den_ci[1:2,], asyoy_lu_den_ci[1:2,])
+pl_den$parm <- ifelse(pl_den$parm == "(Intercept)", "cond.(Intercept)", pl_den$parm)
+pl_den$parm <- ifelse(pl_den$parm == "LunkerYes", "cond.LunkerYes", pl_den$parm)
+pl_den
+
+# rbind the biomass dataframes
+bt_lu_ci$species <- "BT"
+btyoy_lu_ci$species <- "BTYOY"
+as_lu_ci$species <- "AS"
+asyoy_lu_ci$species <- "ASYOY"
+
+lu_bio <- rbind(bt_lu_ci[1:2,], btyoy_lu_ci[1:2,], as_lu_ci[1:2,], asyoy_lu_ci[1:2,])
+lu_bio$parm <- ifelse(lu_bio$parm == "(Intercept)", "cond.(Intercept)", lu_bio$parm)
+lu_bio$parm <- ifelse(lu_bio$parm == "LunkerYes", "cond.LunkerYes", lu_bio$parm)
+
+# cbind both frames
+lu_all <- left_join(lu_den, lu_bio, by = c("species", "parm"))
+lu_all <- lu_all[, c(6, 2, 5, 3:4, 10, 8:9)]
+lu_all$parm <- ifelse(lu_bio$parm == "cond.LunkerYes", "cond.TreatmentImpact", lu_bio$parm)
+str(lu_all)
+#pl_all <- cbind(pl_all[, c(1:2)], round(pl_all[, c(-1, -2)], 3))
+#pl_all[1,3] <- paste0(np_all[1,3], footnote_marker_alphabet(3)) # can add footnotes by adding this to the table
+
+
+## combine ----
+### all data sets
+df_combine <- left_join(np_all, pl_all, by = c("species", "parm"))
+df_combine <- left_join(df_combine, lu_all, by = c("species", "parm"))
+
+
+```
+
+```{r, echo= FALSE}
+options(knitr.kable.NA = '')
+kbl(df_combine, 
+    #  format = "html",
+    # escape = F,
+    col.names = c('spp', 'parm', 
+                  'Estimate', '2.5%', '97.5%',
+                  'Estimate', '2.5%', '97.5%',
+                  'Estimate', '2.5%', '97.5%',
+                  'Estimate', '2.5%', '97.5%',
+                  'Estimate', '2.5%', '97.5%',
+                  'Estimate', '2.5%', '97.5%'
+    ),
+    align = 'c', caption = "riffle and pool", digits = 3 ) |>
+  collapse_rows(valign = "top",
+                latex_hline = "major") |>
+  add_header_above(header = c(" " = 2, 
+                              "Density" = 3, "Biomass" = 3,
+                              "Density" = 3, "Biomass" = 3,
+                              "Density" = 3, "Biomass" = 3
+  )) |>
+  add_header_above(header = c(" " = 2, "NP" = 6, "Pool" = 6, "LUNKER" = 6)) |>
+  #  kable_styling() |>
+  column_spec(2, extra_css = "border-right: 1px solid;") |>
+#  column_spec(2, border_right=T) |>
+  #column_spec(8, border_right=T) |>
+#  column_spec(14, border_right=T) |>
+  kable_paper()
+```
+
