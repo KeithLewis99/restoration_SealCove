@@ -370,8 +370,160 @@ spp_den.ci <- df_a2 |>
   do(data.frame(rbind(Hmisc::smean.cl.boot(.$abun.stand)))) |>
   rename(mean = Mean, ll = Lower, ul = Upper)
 # this works.  The means are the same as if calculated in dplyr and the CI's make sense relative to the means.
+spp_den.ci$ci <- paste0("(", round(spp_den.ci$ll, 1), ", ", round(spp_den.ci$ul, 1), ")")
+
+spp_den_tot.ci <- df_a2 |>
+  group_by(Species, treatment, time, type) |>
+  do(data.frame(rbind(Hmisc::smean.cl.boot(.$abun.stand)))) |>
+  rename(mean = Mean, ll = Lower, ul = Upper)
+# this works.  The means are the same as if calculated in dplyr and the CI's make sense relative to the means.
+spp_den_tot.ci$ci <- paste0("(", round(spp_den_tot.ci$ll, 1), 
+                            ", ", 
+                            round(spp_den_tot.ci$ul, 1), 
+                            ")")
+
+all_den_ci <- rbind(spp_den.ci, spp_den_tot.ci)
+all_den_ci$Year <- ifelse(is.na(all_den_ci$Year), "Total", all_den_ci$Year)
+all_den_ci$mci <- paste(round(all_den_ci$mean, 2), "",  all_den_ci$ci)
+write.csv(all_den_ci, "output/density_boot_ci.csv")
+
+all_den_ci_tabC <- pivot_wider(all_den_ci,
+                               id_cols = c(Species, type, time, treatment),
+                               names_from = c(Year),
+                               values_from = c(mci)
+)
+
+all_den_ci_tabC$Species <- factor(all_den_ci_tabC$Species, levels = c("BT", "BTYOY", "AS", "ASYOY"))
+all_den_ci_tabC <- all_den_ci_tabC[order(all_den_ci_tabC$Species),]
+str(all_den_ci_tabC, give.attr = F)
+
+
+all_den_ci_tabC[is.na(all_den_ci_tabC)] <- ""
+write.csv(all_den_ci_tabC, "output/density_ci_tabC.csv")
+
+# df_a2 |> 
+#   group_by(Species, Year, treatment, time, type) |>
+#   summarise(mean = mean(abun.stand)) |>
+#   print(n = Inf)
 
 spp_bio.ci <- df_a2 |>
   group_by(Species, Year, treatment, time, type) |>
   do(data.frame(rbind(Hmisc::smean.cl.boot(.$bio.stand)))) |>
   rename(mean = Mean, ll = Lower, ul = Upper)
+
+spp_bio.ci$ci <- paste0("(", round(spp_bio.ci$ll, 1), ", ", round(spp_bio.ci$ul, 1), ")")
+spp_bio.ci
+
+spp_bio_tot.ci <- df_a2 |>
+  group_by(Species, treatment, time, type) |>
+  do(data.frame(rbind(Hmisc::smean.cl.boot(.$bio.stand)))) |>
+  rename(mean = Mean, ll = Lower, ul = Upper)
+
+spp_bio_tot.ci$ci <- paste0("(", round(spp_bio_tot.ci$ll, 1), ", ", round(spp_bio_tot.ci$ul, 1), ")")
+spp_bio_tot.ci
+
+all_bio_ci <- rbind(spp_bio.ci, spp_bio_tot.ci)
+all_bio_ci$Year <- ifelse(is.na(all_bio_ci$Year), "Total", all_bio_ci$Year)
+all_bio_ci$mci <- paste(round(all_bio_ci$mean, 2), "",  all_bio_ci$ci)
+write.csv(all_bio_ci, "output/biomass_boot_ci.csv")
+
+
+all_bio_ci_tabC <- pivot_wider(all_bio_ci,
+                               id_cols = c(Species, type, time, treatment),
+                               names_from = c(Year),
+                               values_from = c(mci)
+)
+
+all_bio_ci_tabC$Species <- factor(all_bio_ci_tabC$Species, levels = c("BT", "BTYOY", "AS", "ASYOY"))
+all_bio_ci_tabC <- all_bio_ci_tabC[order(all_bio_ci_tabC$Species),]
+str(all_bio_ci_tabC, give.attr = F)
+
+
+all_bio_ci_tabC[is.na(all_bio_ci_tabC)] <- ""
+write.csv(all_bio_ci_tabC, "output/biomass_ci_tabC.csv")
+
+
+# table ----
+library(kableExtra)
+kbl(all_den_ci_tabC,
+    col.names = c('spp', 'type', 'time', 'treatment',
+                  '1988',
+                  '1989',
+                  '1990',
+                  '1991',
+                  '1992',
+                  '1993',
+                  '1994',
+                  '1999',
+                  '2007',
+                  '2015',
+                  '2016',
+                  'total'),
+    align = 'c', caption = "Density CIs", digits = 2 ) |>
+  #collapse_rows(valign = "top", latex_hline = "major") |>
+  add_header_above(header = c(" " = 4, "Year" = 11, " " = 1)) |>
+  kable_styling(font_size = 9) |>
+kable_paper()
+
+
+# bootstrap figs ----
+## density ----
+spp_den.ci |> filter(type == "riffle") |>
+ggplot(aes(x = as.factor(Year), y = mean, fill = type, colour = type)) + 
+  geom_point(position = position_dodge(width = 0.5), size = 3, colour = "black") +
+  facet_grid(treatment~Species) + 
+  theme_bw(base_size = 18) + 
+  ylab(expression("Density Estimate (#/100 m" ^2*")")) +
+  xlab("Year") +
+  theme(legend.position = "none") +
+  geom_errorbar(aes(ymax = ul, ymin = ll), linewidth=1, width=0.15, position=position_dodge(0.5), colour = "black") +
+  geom_vline(xintercept = 3.5, linetype="dashed", linewidth=0.5) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+ggsave("output/salmonid_density_riffle_boot.png", width=10, height=8, units="in")
+
+spp_den.ci |> filter(type == "pool") |>
+  ggplot(aes(x = as.factor(Year), y = mean, fill = type, colour = type)) + 
+  geom_point(position = position_dodge(width = 0.5), size = 3, colour = "black") +
+  facet_grid(treatment~Species) + 
+  theme_bw(base_size = 18) + 
+  ylab(expression("Density Estimate (#/100 m" ^2*")")) +
+  xlab("Year") +
+  theme(legend.position = "none") +
+  geom_errorbar(aes(ymax = ul, ymin = ll), linewidth=1, width=0.15, position=position_dodge(0.5), colour = "black") +
+  geom_vline(xintercept = 3.5, linetype="dashed", linewidth=0.5) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+ggsave("output/salmonid_density_pool_boot.png", width=10, height=8, units="in")
+
+## biomass ----
+spp_bio.ci |> filter(type == "riffle") |>
+  ggplot(aes(x = as.factor(Year), y = mean, fill = type, colour = type)) + 
+  geom_point(position = position_dodge(width = 0.5), size = 3, colour = "black") +
+  facet_grid(treatment~Species) + 
+  theme_bw(base_size = 18) + 
+  ylab(expression("Biomass Estimate (g/m" ^2*")")) +
+  xlab("Year") +
+  theme(legend.position = "none") +
+  geom_errorbar(aes(ymax = ul, ymin = ll), linewidth=1, width=0.15, position=position_dodge(0.5), colour = "black") +
+  geom_vline(xintercept = 3.5, linetype="dashed", linewidth=0.5) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+ggsave("output/salmonid_biomass_riffle_boot.png", width=10, height=8, units="in")
+
+spp_bio.ci |> filter(type == "pool") |>
+  ggplot(aes(x = as.factor(Year), y = mean, fill = type, colour = type)) + 
+  geom_point(position = position_dodge(width = 0.5), size = 3, colour = "black") +
+  facet_grid(treatment~Species) + 
+  theme_bw(base_size = 18) + 
+  ylab(expression("Biomass Estimate (g/m" ^2*")")) +
+  xlab("Year") +
+  theme(legend.position = "none") +
+  geom_errorbar(aes(ymax = ul, ymin = ll), linewidth=1, width=0.15, position=position_dodge(0.5), colour = "black") +
+  geom_vline(xintercept = 3.5, linetype="dashed", linewidth=0.5) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+ggsave("output/salmonid_biomass_pool_boot.png", width=10, height=8, units="in")
+
+
+
+
+den_ci <- read.csv("output/density_ci_tabC.csv")
+den_ci <- den_ci[, -1]
+str(den_ci)

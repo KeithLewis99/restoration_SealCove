@@ -29,6 +29,11 @@ library(cowplot)
 # ...
 # asyoy_ciout <- read_csv("output/asyoy_ci.csv")
 
+den_ci <- read.csv("output/density_ci_tabC.csv")
+den_ci <- den_ci[, -1]
+bio_ci <- read.csv("output/biomass_ci_tabC.csv")
+bio_ci <- bio_ci[, -1]
+
 # create pattern
 temp = list.files(path = "output", pattern=".*_ci.csv$", full.names = T)
 
@@ -979,6 +984,66 @@ knitr::include_graphics("output/fade_np_BTbiomass.png")
 ### Biomass - Pool
 ```{r}
 knitr::include_graphics("output/fade_pool_BTbiomass.png")
+```
+
+
+Density CI Table 
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+```{r den tab ci, echo=FALSE}
+kbl(den_ci,
+    col.names = c('spp', 'type', 'time', 'treatment',
+                  '1988',
+                  '1989',
+                  '1990',
+                  '1991',
+                  '1992',
+                  '1993',
+                  '1994',
+                  '1999',
+                  '2007',
+                  '2015',
+                  '2016',
+                  'total'),
+    align = 'c', caption = "Density CIs", digits = 2 ) |>
+  #collapse_rows(valign = "top", latex_hline = "major") |>
+  add_header_above(header = c(" " = 4, "Year" = 11, " " = 1)) |>
+  kable_styling(font_size = 9) |>
+  kable_paper()
+```
+
+
+Biomass CI Table 
+=====
+
+
+Column
+-----------------------------------------------------------------------
+
+```{r bio tab ci, echo=FALSE}
+kbl(bio_ci,
+    col.names = c('spp', 'type', 'time', 'treatment',
+                  '1988',
+                  '1989',
+                  '1990',
+                  '1991',
+                  '1992',
+                  '1993',
+                  '1994',
+                  '1999',
+                  '2007',
+                  '2015',
+                  '2016',
+                  'total'),
+    align = 'c', caption = "Biomass CIs", digits = 2 ) |>
+  #collapse_rows(valign = "top", latex_hline = "major") |>
+  add_header_above(header = c(" " = 4, "Year" = 11, " " = 1)) |>
+  kable_styling(font_size = 9) |>
+  kable_paper()
 ```
 
 
