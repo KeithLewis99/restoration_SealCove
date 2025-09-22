@@ -74,7 +74,7 @@ The solution as I see it is to use GLMM with zeroinflated gamma distributions or
 <!-- Summary_all -->
 <!-- Just graphs -->
   
-BT {data-navmenu="Summary_all"}
+BT {data-navmenu="Summary_fig"}
 =====
 
 
@@ -98,7 +98,7 @@ knitr::include_graphics("output/BT_biomass.png")
 ```
 
 
-BTYOY {data-navmenu="Summary_all"}
+BTYOY {data-navmenu="Summary_fig"}
 =====
 
 Column
@@ -119,7 +119,7 @@ Column
 knitr::include_graphics("output/BTYOY_biomass.png")
 ```
 
-AS {data-navmenu="Summary_all"}
+AS {data-navmenu="Summary_fig"}
 =====
 
 Column
@@ -140,7 +140,7 @@ Column
 knitr::include_graphics("output/AS_biomass.png")
 ```
 
-ASYOY {data-navmenu="Summary_all"}
+ASYOY {data-navmenu="Summary_fig"}
 =====
 
 Column
@@ -166,7 +166,7 @@ knitr::include_graphics("output/ASYOY_biomass.png")
 <!-- Summary_all -->
 <!-- Just CIs -->
   
-BT {data-navmenu="Summary_CI"}
+BT {data-navmenu="Param_CI"}
 =====
 
 
@@ -222,7 +222,7 @@ kbl(bt_lu_ci[1:2, c(2, 5, 3:4)],
   kable_paper()
 ```
 
-BTYOY {data-navmenu="Summary_CI"}
+BTYOY {data-navmenu="Param_CI"}
 =====
 
 
@@ -280,7 +280,7 @@ kbl(btyoy_lu_ci[1:2, c(2, 5, 3:4)],
 ```
 
 
-AS {data-navmenu="Summary_CI"}
+AS {data-navmenu="Param_CI"}
 =====
 
 
@@ -338,7 +338,7 @@ kbl(as_lu_ci[1:2, c(2, 5, 3:4)],
 ```
 
 
-ASYOY {data-navmenu="Summary_CI"}
+ASYOY {data-navmenu="Param_CI"}
 =====
 
 
@@ -987,8 +987,9 @@ knitr::include_graphics("output/fade_pool_BTbiomass.png")
 ```
 
 
-Density CI Table 
+Density {data-navmenu="Boostrap CI tab"}
 =====
+
 
 
 Column
@@ -1017,7 +1018,7 @@ kbl(den_ci,
 ```
 
 
-Biomass CI Table 
+Biomass {data-navmenu="Boostrap CI tab"}
 =====
 
 
@@ -1044,6 +1045,51 @@ kbl(bio_ci,
   add_header_above(header = c(" " = 4, "Year" = 11, " " = 1)) |>
   kable_styling(font_size = 9) |>
   kable_paper()
+```
+
+
+Riffle {data-navmenu="Boostrap CI fig"}
+=====
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("output/salmonid_density_riffle_boot.png")
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("output/salmonid_biomass_riffle_boot.png")
+```
+
+
+Pool {data-navmenu="Boostrap CI fig"}
+=====
+
+Column
+-----------------------------------------------------------------------
+
+### Density
+
+```{r}
+knitr::include_graphics("output/salmonid_density_pool_boot.png")
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Biomass
+
+```{r}
+knitr::include_graphics("output/salmonid_biomass_pool_boot.png")
 ```
 
 
