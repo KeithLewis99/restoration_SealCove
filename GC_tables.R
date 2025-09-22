@@ -1,4 +1,5 @@
 # The purpose of this file is simply to produce bootstrap estimates of the Seal Cove data so that it is compatible with the other values from the Synthesis paper.
+## Misnamed it "GC_tables" - shoudl be "SC_tables"
 
 # Unfortunately, I could not just bring in the data that I used in density_glmm_models.R and biomass_glmm_models.R because these estimates were derived using Cote's code and i've abandoned this.  Therefore, I replicated the code I used in the other synthesis projects before calculating the bootstrap intervals.  
 
